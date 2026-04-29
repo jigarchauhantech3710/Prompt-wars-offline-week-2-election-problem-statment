@@ -6,7 +6,7 @@
        Challenge: Interactive Election Process Assistant
        Built for: Google Prompt Wars 2025
        Author: Team
-       Google Services: Gemini 2.0 Flash API, Google Fonts, Material Symbols
+       Google Services: Gemini 2.5 Flash API, Google Fonts, Material Symbols
   ============================================================ -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -1440,7 +1440,7 @@
         <span class="section-label">Google Gemini AI</span>
         <h2 class="section-title" id="chat-heading">Ask the AI Election Guide</h2>
         <p class="section-desc">
-          Powered by Google Gemini 2.0 Flash — ask anything about elections, voting, timelines, or civics.
+          Powered by Google Gemini 2.5 Flash — ask anything about elections, voting, timelines, or civics.
         </p>
       </div>
 
@@ -1459,7 +1459,7 @@
           </div>
           <div class="chat-powered" aria-label="Powered by Google Gemini">
             <span class="google-g" aria-hidden="true">G</span>
-            Google Gemini 2.0 Flash
+            Google Gemini 2.5 Flash
           </div>
         </div>
 
@@ -1639,7 +1639,7 @@
     /* ============================================================
        1. CONSTANTS & STATE
     ============================================================ */
-    const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+    const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
 
     // App state — no localStorage; all session-scoped for security
     const state = {
@@ -1681,31 +1681,33 @@ Guidelines:
     /**
      * Validates and saves the Gemini API key.
      * Security: key is kept in JS memory only — never stored in localStorage/cookies.
+     * Validation: format-check only (AIza prefix + min length).
+     * The first real chat call will surface any quota/permission errors gracefully.
      */
-    saveApiBtn.addEventListener('click', async () => {
+    saveApiBtn.addEventListener('click', () => {
       const key = apiKeyInput.value.trim();
-      if (!key || !key.startsWith('AIza')) {
-        showApiStatus('Invalid key format', false);
+
+      // Format validation — Gemini keys always start with AIza and are 39 chars
+      if (!key || !key.startsWith('AIza') || key.length < 20) {
+        showApiStatus('⚠ Invalid key format', false);
         return;
       }
 
-      saveApiBtn.textContent = 'Verifying…';
-      saveApiBtn.disabled = true;
+      // Save key to session state (never persisted to storage)
+      state.apiKey = key;
+      showApiStatus('✓ Key saved', true);
 
-      const valid = await verifyApiKey(key);
+      // Unlock chat UI
+      chatInput.disabled = false;
+      chatInput.placeholder = 'Ask anything about elections…';
+      chatSendBtn.disabled = false;
+      document.getElementById('chatStatus').textContent = 'AI online · Gemini 2.5 Flash';
+      chatInput.focus();
+    });
 
-      if (valid) {
-        state.apiKey = key;
-        showApiStatus('✓ Connected', true);
-        chatSendBtn.disabled = false;
-        chatInput.disabled = false;
-        document.getElementById('chatStatus').textContent = 'AI online · Gemini 2.0 Flash';
-      } else {
-        showApiStatus('Key invalid or quota exceeded', false);
-      }
-
-      saveApiBtn.textContent = 'Save Key';
-      saveApiBtn.disabled = false;
+    // Also allow pressing Enter in the API key field to save
+    apiKeyInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') saveApiBtn.click();
     });
 
     function showApiStatus(msg, ok) {
@@ -1713,30 +1715,11 @@ Guidelines:
       apiStatus.className = 'api-status ' + (ok ? 'ok' : 'err');
     }
 
-    /**
-     * Light verification call — sends a minimal request to confirm the key works.
-     */
-    async function verifyApiKey(key) {
-      try {
-        const res = await fetch(`${GEMINI_API_BASE}?key=${encodeURIComponent(key)}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ role: 'user', parts: [{ text: 'ping' }] }],
-            generationConfig: { maxOutputTokens: 5 }
-          })
-        });
-        return res.ok;
-      } catch {
-        return false;
-      }
-    }
-
     /* ============================================================
        3. GEMINI API — Google Service #3
     ============================================================ */
     /**
-     * Sends a message to Gemini 2.0 Flash and returns the response text.
+     * Sends a message to Gemini 2.5 Flash and returns the response text.
      * Includes full conversation history for multi-turn context.
      * @param {string} userMessage
      * @returns {Promise<string>}
@@ -1891,7 +1874,7 @@ Guidelines:
         addMessage('ai', `⚠️ Error: ${err.message}. Please check your API key and try again.`);
       } finally {
         chatSendBtn.disabled = false;
-        document.getElementById('chatStatus').textContent = 'AI online · Gemini 2.0 Flash';
+        document.getElementById('chatStatus').textContent = 'AI online · Gemini 2.5 Flash';
         chatInput.focus();
       }
     }
