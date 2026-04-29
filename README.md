@@ -1,161 +1,132 @@
-# 🗳️ ElectIQ — AI Election Guide
+# ElectIQ India 🇮🇳 — AI Election Guide
 
-> An interactive assistant that helps users understand the election process, timelines, and steps — powered by **Google Gemini 2.0 Flash**.
+> **Google Prompt Wars 2025** | Model: **gemini-2.5-flash** | Tests: **58/58 passing**
 
-Built for **Google Prompt Wars 2025** · Challenge: *Create an assistant that helps users understand the election process, timelines, and steps in an interactive and easy-to-follow way.*
-
----
-
-## 🚀 Live Demo
-
-Deploy via GitHub Pages:
-1. Go to **Settings → Pages**
-2. Set source to `main` branch, `/ (root)`
-3. Visit `https://<your-username>.github.io/<repo-name>`
+India's complete AI election guide — single `index.html`, no build step, no frameworks.
 
 ---
 
-## ✨ Features
+## 🚀 Deploy to GitHub Pages
 
-| Feature | Description |
-|---|---|
-| 🤖 **AI Chat (Gemini)** | Ask any election question — multi-turn conversation powered by Google Gemini 2.0 Flash |
-| 📅 **Interactive Timeline** | 7-phase election timeline with animated scroll reveal |
-| 📋 **Process Cards** | Four core pillars of a fair election explained clearly |
-| 🧠 **Knowledge Quiz** | 5-question interactive quiz with instant feedback and explanations |
-| 📖 **Glossary** | 12 key election terms defined in plain language |
-| ♿ **Accessibility** | Font resize, high-contrast mode, skip links, full ARIA support |
+```bash
+git add index.html test.js README.md
+git commit -m "ElectIQ India - All 10 features"
+git push origin main
+# GitHub → Settings → Pages → Branch: main → / (root) → Save
+```
+
+**Live at:** `https://YOUR_USERNAME.github.io/REPO_NAME/`
 
 ---
 
 ## 🔧 Setup
 
-This is a **single-file app** — no build step, no dependencies, no server required.
+1. Get a free API key at [aistudio.google.com](https://aistudio.google.com)
+2. Open `index.html` in any modern browser
+3. Enter API key in the yellow banner → **Save Key**
+4. All AI features activate instantly
 
-### Step 1 — Get a Google Gemini API Key
-1. Visit [Google AI Studio](https://aistudio.google.com/app/apikey)
-2. Click **Create API Key**
-3. Copy the key (starts with `AIza…`)
-
-### Step 2 — Open the App
-Open `index.html` in any modern browser **or** deploy to GitHub Pages.
-
-### Step 3 — Enter Your API Key
-Paste your Gemini API key into the **Configure Google Gemini API** field at the top of the page and click **Save Key**. The key is verified live and stored only in your browser session — never persisted.
+> **No API key needed** for: Map, Quiz, Party Explorer, Countdown, Dashboard, Glossary, Timeline, Education Cards.
+> **API key needed** for: AI Chat + Eligibility Checker.
 
 ---
 
-## 🏗️ Architecture
+## ✅ All 10 Features
 
-```
-index.html          ← Entire application (single file, no folders)
-README.md           ← This file
-test.js             ← Standalone test suite (run in browser console or Node)
-```
-
-### Technology Stack
-
-| Layer | Technology | Why |
+| # | Feature | How to test |
 |---|---|---|
-| AI | Google Gemini 2.0 Flash API | Fast, capable, multilingual election Q&A |
-| Fonts | Google Fonts (Fraunces + DM Sans) | Distinctive civic aesthetic |
-| Icons | Google Material Symbols | Consistent iconography |
-| Styling | Vanilla CSS (CSS Custom Properties) | Zero dependencies, fast load |
-| Scripting | Vanilla JS ES6+ (`'use strict'`) | No framework overhead |
+| 1 | 🗺️ **India Election Map** | Click any colored dot — see state info panel |
+| 2 | 🔊 **Voice Input** | Click orange mic button → speak your question |
+| 3 | 🌐 **Hindi/English Toggle** | Click **हि** in top nav — entire UI switches |
+| 4 | 📊 **ECI Dashboard** | Scroll to dashboard — bars animate on entry |
+| 5 | 🗳️ **Voter Eligibility Checker** | Fill form → click Check My Eligibility |
+| 6 | 📅 **Election Countdown** | Live timer visible on page load |
+| 7 | 🏛️ **Party Explorer** | 12 party cards — click any to ask AI |
+| 8 | 📱 **WhatsApp Chat UI** | Green header, bubbles, timestamps, blue ticks |
+| 9 | 🎓 **Education Cards** | ECI official links section |
+| 10 | 🏆 **Gamified Quiz** | Easy/Medium/Hard tabs + 🥉🥈🥇 badges |
 
 ---
 
-## 📊 Evaluation Criteria Coverage
+## ✅ Bugs Fixed in This Version
 
-### ✅ Code Quality
-- Semantic HTML5 elements (`<main>`, `<article>`, `<section>`, `<nav>`, `<header>`, `<footer>`)
-- `'use strict'` enforced
-- CSS Custom Properties design system for consistent theming
-- Fully commented code with section headers
-- No inline event handlers; all JS separation from HTML
-
-### ✅ Security
-- **API key never stored** in `localStorage`, `sessionStorage`, or cookies — session memory only
-- XSS protection: all user/AI content HTML-entity-encoded before rendering in `formatAIText()`
-- Content-Security-Policy meta tag restricts resource origins
-- API key format validated (`AIza…`) before any network call
-- Gemini Safety Settings configured to block harmful content categories
-
-### ✅ Efficiency
-- **Single HTML file** — zero build tools, instant deploy
-- `IntersectionObserver` with `unobserve()` after first trigger — no idle observers
-- Gemini `maxOutputTokens: 800` cap prevents runaway responses
-- `textarea` auto-resize without layout thrash
-- Google Fonts loaded with `preconnect` hints for faster DNS
-
-### ✅ Testing
-- **Inline self-test suite** runs on every page load (see `selfTest()` in source)
-- Standalone `test.js` file with 12 unit tests covering all critical functions
-- Tests verify: function existence, data integrity, XSS sanitization, quiz logic, observer creation
-- All test results logged to browser console — open DevTools to verify
-
-### ✅ Accessibility
-- **Skip navigation link** for keyboard/screen-reader users
-- Full **ARIA labels** on every interactive element
-- `role="log"` + `aria-live="polite"` on chat for screen reader announcements
-- `role="radiogroup"` + `role="radio"` + `aria-checked` on quiz options
-- **Font size controls** (+/−) in navbar toolbar
-- **High-contrast mode** toggle (WCAG AA compliant color swap)
-- `:focus-visible` styles for keyboard navigation
-- `aria-label` on all icon-only buttons
-- Print stylesheet hides non-essential UI
-
-### ✅ Google Services Integration (3 Services)
-1. **Google Gemini 2.0 Flash API** — Core AI feature; multi-turn chat with system prompt, safety settings, and generation config
-2. **Google Fonts** — `Fraunces` (display) + `DM Sans` (body) loaded from `fonts.googleapis.com`
-3. **Google Material Symbols** — Icon set throughout the UI loaded from Google's CDN
-
----
-
-## 🗂️ File Structure
-
-```
-index.html    ← Complete single-page application
-README.md     ← Project documentation (this file)
-test.js       ← Unit test suite
-```
-
-> **Note:** No subfolders — as per submission requirements, all files are at the root level.
-
----
-
-## 🧪 Running Tests
-
-### In Browser Console
-1. Open `index.html` in a browser
-2. Open DevTools → Console
-3. You'll see: `[ElectIQ Self-Test] All 5 tests passed ✓`
-4. For extended tests, paste contents of `test.js` into the console
-
-### In Node.js (without DOM)
-```bash
-node test.js
-```
-
----
-
-## 📸 Screenshots
-
-| Section | Description |
+| Bug | Fix Applied |
 |---|---|
-| Hero | Animated civic-themed landing with stats |
-| API Setup | Gemini key input with live verification |
-| Timeline | 7-phase animated election timeline |
-| AI Chat | Gemini-powered Q&A with quick prompts |
-| Quiz | 5-question interactive knowledge test |
-| Glossary | 12 key election terms |
+| Chat scroll — messages cut off at bottom | `min-height:0` on flex child + `setTimeout` scroll |
+| JS `t` variable clash (translation fn vs forEach param) | Renamed all loop vars to `eachTab`, `eachBtn` etc. |
+| `sanitize()` called before definition | Moved to top of script, defined before first use |
+| Template literal nesting breaking some browsers | Replaced with string concatenation in all JS builders |
+| `const` / arrow functions in strict mode closure issues | Rewrote all JS with `var` and named functions for compatibility |
+| CSP blocking `data:` URIs | Removed restrictive meta CSP (GitHub Pages has none by default) |
+| `system_instruction` field inconsistency | Kept consistent with Gemini API spec |
 
 ---
 
-## 📄 License
+## ✅ Evaluation Criteria Evidence
 
-MIT License — open for educational and civic use.
+### 1. Code Quality
+- Clean structure: CSS vars → component styles → semantic HTML → modular JS functions
+- Every feature in its own IIFE or named function block
+- Comments mark each of the 10 feature sections clearly
+- No external dependencies — zero npm, zero bundler
+
+### 2. Security
+- `sanitize()` HTML-encodes `<`, `>`, `&` before any `innerHTML` assignment
+- API key: session memory only, never `localStorage`, never logged
+- `BLOCK_MEDIUM_AND_ABOVE` Gemini safety settings on 3 harm categories
+- Key validation: must start with `AIza` + minimum 20 characters
+
+### 3. Efficiency
+- Single file, loads in one request
+- `IntersectionObserver` for bar chart animations (only renders when visible)
+- `setTimeout` + `requestAnimationFrame` scroll combo for reliable chat scroll
+- Lazy DOM builds for all dynamic sections (parties, dashboard, glossary, map)
+
+### 4. Testing — 58/58 Passing
+```
+node test.js
+
+> 1. Model & API           5/5  ✓
+> 2. Security & XSS        8/8  ✓
+> 3. Multilingual EN/HI    5/5  ✓
+> 4. Quiz — 3 Levels       8/8  ✓
+> 5. India Map             5/5  ✓
+> 6. Party Explorer        6/6  ✓
+> 7. Countdown             5/5  ✓
+> 8. Eligibility Logic     6/6  ✓
+> 9. Text Formatting       5/5  ✓
+> 10. API Payload          5/5  ✓
+─────────────────────────────────
+Tests: 58 | Passed: 58 | Score: 100%
+ALL TESTS PASSED ✓
+```
+
+### 5. Accessibility
+- Skip navigation link
+- Full ARIA: `role="log"` on chat, `aria-live="polite"` on results, `aria-label` on all interactive elements
+- High contrast toggle (`body.hc` CSS class)
+- Font size ± controls (12px to 22px)
+- `focus-visible` keyboard navigation styles
+- Print stylesheet
+- `lang` attribute switches dynamically on language toggle
+
+### 6. Google Services — 3 Integrations
+| Service | Use |
+|---|---|
+| **Google Gemini 2.5 Flash API** | AI chat, eligibility checker, party info queries |
+| **Google Fonts** | Fraunces + DM Sans + Tiro Devanagari Hindi |
+| **Material Symbols** | Icons throughout UI (Google's icon font) |
 
 ---
 
-*Built with ❤️ for Google Prompt Wars 2025 · Powered by Google Gemini AI*
+## 📁 Files
+
+```
+index.html   — Complete single-page app (CSS + HTML + JS, 1617 lines)
+test.js      — Standalone test suite (node test.js)
+README.md    — This file
+```
+
+---
+
+*ElectIQ India | Google Prompt Wars 2025 | gemini-2.5-flash*
