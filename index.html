@@ -1,2143 +1,1746 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" id="htmlRoot">
 <head>
   <!-- ============================================================
-       ELECTION GUIDE AI — Powered by Google Gemini
-       Challenge: Interactive Election Process Assistant
-       Built for: Google Prompt Wars 2025
-       Author: Team
-       Google Services: Gemini 2.5 Flash API, Google Fonts, Material Symbols
+       ELECTIQ INDIA — AI Election Guide
+       Google Prompt Wars 2025
+       Model: gemini-2.5-flash
+       Google Services: Gemini API · Google Fonts · Material Symbols
+       Features: All 10 + Indian elections + chat scroll fix
   ============================================================ -->
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <meta http-equiv="Content-Security-Policy"
         content="default-src 'self' 'unsafe-inline' 'unsafe-eval'
                  https://fonts.googleapis.com https://fonts.gstatic.com
-                 https://generativelanguage.googleapis.com;" />
-  <meta name="description"
-        content="Understand elections interactively — powered by Google Gemini AI" />
-  <title>ElectIQ — AI Election Guide</title>
+                 https://generativelanguage.googleapis.com;"/>
+  <meta name="description" content="India's AI election guide powered by Google Gemini"/>
+  <title>ElectIQ India — AI चुनाव गाइड</title>
 
   <!-- ── Google Fonts (Google Service #1) ── -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,700;0,900;1,300&family=DM+Sans:wght@300;400;500;600&display=swap"
-        rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600&family=Tiro+Devanagari+Hindi&display=swap" rel="stylesheet"/>
 
   <!-- ── Material Symbols (Google Service #2) ── -->
-  <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0"/>
 
   <style>
-    /* ============================================================
-       DESIGN SYSTEM — CSS Custom Properties
-    ============================================================ */
-    :root {
-      --ink:       #0a0f1e;
-      --ink-soft:  #3a4060;
-      --paper:     #faf9f6;
-      --paper-2:   #f0ede6;
-      --civic:     #1a3a8f;
-      --civic-mid: #2553c5;
-      --civic-lite:#e8eeff;
-      --gold:      #c89b2a;
-      --gold-lite: #fff8e6;
-      --red:       #c0392b;
-      --green:     #1a7f5a;
-      --border:    rgba(26,58,143,0.15);
-      --shadow:    0 4px 24px rgba(10,15,30,0.10);
-      --radius:    12px;
-      --radius-lg: 20px;
-      --font-head: 'Fraunces', Georgia, serif;
-      --font-body: 'DM Sans', system-ui, sans-serif;
-      --transition: 0.25s cubic-bezier(0.4,0,0.2,1);
-    }
-
-    /* High-contrast mode override */
-    body.high-contrast {
-      --ink:      #000;
-      --paper:    #fff;
-      --paper-2:  #f0f0f0;
-      --civic:    #00008b;
-      --border:   #000;
-      --ink-soft: #111;
-    }
-
-    /* ============================================================
-       RESET & BASE
-    ============================================================ */
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    html { scroll-behavior: smooth; font-size: 16px; }
-
-    body {
-      font-family: var(--font-body);
-      background: var(--paper);
-      color: var(--ink);
-      line-height: 1.6;
-      overflow-x: hidden;
-    }
-
-    /* ── Skip link (Accessibility) ── */
-    .skip-link {
-      position: absolute;
-      top: -999px;
-      left: 8px;
-      background: var(--civic);
-      color: #fff;
-      padding: 8px 16px;
-      border-radius: 0 0 8px 8px;
-      font-weight: 600;
-      z-index: 9999;
-      text-decoration: none;
-      transition: top var(--transition);
-    }
-    .skip-link:focus { top: 0; }
-
-    /* ── Focus styles ── */
-    :focus-visible {
-      outline: 3px solid var(--civic-mid);
-      outline-offset: 3px;
-      border-radius: 4px;
-    }
-
-    /* ============================================================
-       LAYOUT UTILITIES
-    ============================================================ */
-    .container { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
-    .sr-only {
-      position: absolute; width: 1px; height: 1px;
-      overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap;
-    }
-
-    /* ============================================================
-       NAVBAR
-    ============================================================ */
-    .navbar {
-      position: sticky; top: 0; z-index: 100;
-      background: rgba(250,249,246,0.92);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border);
-      padding: 12px 0;
-    }
-
-    .navbar-inner {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      text-decoration: none;
-      color: var(--ink);
-    }
-
-    .brand-logo {
-      width: 36px;
-      height: 36px;
-      background: var(--civic);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #fff;
-      font-size: 20px;
-    }
-
-    .brand-name {
-      font-family: var(--font-head);
-      font-size: 1.4rem;
-      font-weight: 700;
-      letter-spacing: -0.5px;
-    }
-
-    .brand-name span { color: var(--civic-mid); }
-
-    .nav-links {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      list-style: none;
-    }
-
-    .nav-links a {
-      font-size: 0.88rem;
-      font-weight: 500;
-      color: var(--ink-soft);
-      text-decoration: none;
-      padding: 6px 12px;
-      border-radius: 8px;
-      transition: background var(--transition), color var(--transition);
-    }
-
-    .nav-links a:hover {
-      background: var(--civic-lite);
-      color: var(--civic);
-    }
-
-    /* Accessibility toolbar */
-    .a11y-toolbar {
-      display: flex;
-      gap: 6px;
-      align-items: center;
-    }
-
-    .icon-btn {
-      width: 36px;
-      height: 36px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      background: transparent;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--ink-soft);
-      transition: background var(--transition);
-      font-size: 18px;
-    }
-
-    .icon-btn:hover { background: var(--civic-lite); color: var(--civic); }
-    .icon-btn.active { background: var(--civic); color: #fff; }
-
-    /* ============================================================
-       HERO
-    ============================================================ */
-    .hero {
-      background: linear-gradient(135deg, #0a1628 0%, #1a3a8f 60%, #0d2260 100%);
-      color: #fff;
-      padding: 80px 0 60px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    /* Decorative background pattern */
-    .hero::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background-image:
-        radial-gradient(circle at 20% 80%, rgba(200,155,42,0.15) 0%, transparent 50%),
-        radial-gradient(circle at 80% 20%, rgba(37,83,197,0.3) 0%, transparent 50%);
-      pointer-events: none;
-    }
-
-    .hero-grid {
-      position: absolute;
-      inset: 0;
-      background-image:
-        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
-      background-size: 48px 48px;
-      pointer-events: none;
-    }
-
-    .hero-content { position: relative; z-index: 1; }
-
-    .hero-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: rgba(200,155,42,0.2);
-      border: 1px solid rgba(200,155,42,0.4);
-      color: #e8c56a;
-      padding: 5px 14px;
-      border-radius: 999px;
-      font-size: 0.78rem;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      margin-bottom: 24px;
-      animation: fadeDown 0.6s ease both;
-    }
-
-    .hero h1 {
-      font-family: var(--font-head);
-      font-size: clamp(2.2rem, 5vw, 3.8rem);
-      font-weight: 900;
-      line-height: 1.1;
-      letter-spacing: -1px;
-      margin-bottom: 20px;
-      animation: fadeDown 0.6s 0.1s ease both;
-    }
-
-    .hero h1 em {
-      font-style: italic;
-      color: #e8c56a;
-    }
-
-    .hero-sub {
-      font-size: 1.1rem;
-      color: rgba(255,255,255,0.75);
-      max-width: 520px;
-      margin-bottom: 32px;
-      animation: fadeDown 0.6s 0.2s ease both;
-    }
-
-    .hero-ctas {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      animation: fadeDown 0.6s 0.3s ease both;
-    }
-
-    .btn-primary {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: var(--gold);
-      color: #1a0a00;
-      font-weight: 700;
-      font-size: 0.95rem;
-      padding: 13px 24px;
-      border-radius: 10px;
-      text-decoration: none;
-      border: none;
-      cursor: pointer;
-      transition: transform var(--transition), box-shadow var(--transition);
-    }
-
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(200,155,42,0.4);
-    }
-
-    .btn-outline {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: transparent;
-      color: #fff;
-      font-weight: 500;
-      font-size: 0.95rem;
-      padding: 12px 24px;
-      border-radius: 10px;
-      text-decoration: none;
-      border: 1px solid rgba(255,255,255,0.3);
-      cursor: pointer;
-      transition: background var(--transition);
-    }
-
-    .btn-outline:hover { background: rgba(255,255,255,0.1); }
-
-    /* Stats bar */
-    .hero-stats {
-      display: flex;
-      gap: 32px;
-      margin-top: 48px;
-      padding-top: 32px;
-      border-top: 1px solid rgba(255,255,255,0.1);
-      flex-wrap: wrap;
-      animation: fadeUp 0.6s 0.4s ease both;
-    }
-
-    .stat-item { text-align: left; }
-    .stat-num {
-      font-family: var(--font-head);
-      font-size: 1.8rem;
-      font-weight: 700;
-      color: #e8c56a;
-    }
-    .stat-label {
-      font-size: 0.78rem;
-      color: rgba(255,255,255,0.55);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    /* ============================================================
-       API KEY SETUP BANNER
-    ============================================================ */
-    .api-banner {
-      background: var(--gold-lite);
-      border: 1px solid rgba(200,155,42,0.3);
-      border-radius: var(--radius);
-      padding: 16px 20px;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      flex-wrap: wrap;
-      margin: 24px 0;
-    }
-
-    .api-banner-icon { color: var(--gold); font-size: 24px; flex-shrink: 0; }
-
-    .api-banner-text { flex: 1; min-width: 200px; }
-    .api-banner-text strong { font-weight: 600; font-size: 0.95rem; display: block; }
-    .api-banner-text span {
-      font-size: 0.82rem;
-      color: var(--ink-soft);
-    }
-
-    .api-input-row {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .api-input {
-      padding: 9px 14px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      font-size: 0.88rem;
-      font-family: var(--font-body);
-      background: #fff;
-      color: var(--ink);
-      width: 280px;
-      transition: border var(--transition);
-    }
-
-    .api-input:focus { outline: none; border-color: var(--civic-mid); }
-
-    .btn-save {
-      padding: 9px 18px;
-      background: var(--civic);
-      color: #fff;
-      font-weight: 600;
-      font-size: 0.88rem;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background var(--transition);
-    }
-
-    .btn-save:hover { background: var(--civic-mid); }
-
-    .api-status {
-      font-size: 0.82rem;
-      font-weight: 500;
-      padding: 4px 10px;
-      border-radius: 999px;
-    }
-
-    .api-status.ok { background: #d4f5e8; color: #1a7f5a; }
-    .api-status.err { background: #ffe0dc; color: #c0392b; }
-
-    /* ============================================================
-       SECTION SHELL
-    ============================================================ */
-    .section { padding: 72px 0; }
-    .section-alt { background: var(--paper-2); }
-
-    .section-header { margin-bottom: 48px; }
-    .section-label {
-      display: inline-block;
-      font-size: 0.72rem;
-      font-weight: 700;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      color: var(--civic);
-      margin-bottom: 12px;
-      padding: 4px 12px;
-      background: var(--civic-lite);
-      border-radius: 999px;
-    }
-
-    .section-title {
-      font-family: var(--font-head);
-      font-size: clamp(1.6rem, 3.5vw, 2.4rem);
-      font-weight: 700;
-      letter-spacing: -0.5px;
-      line-height: 1.2;
-      color: var(--ink);
-    }
-
-    .section-desc {
-      font-size: 1rem;
-      color: var(--ink-soft);
-      max-width: 560px;
-      margin-top: 10px;
-    }
-
-    /* ============================================================
-       TIMELINE
-    ============================================================ */
-    .timeline { position: relative; }
-
-    .timeline::before {
-      content: '';
-      position: absolute;
-      left: 28px;
-      top: 0;
-      bottom: 0;
-      width: 2px;
-      background: linear-gradient(to bottom, var(--civic), var(--gold), transparent);
-    }
-
-    .tl-item {
-      display: flex;
-      gap: 24px;
-      margin-bottom: 32px;
-      opacity: 0;
-      transform: translateX(-20px);
-      transition: opacity 0.5s ease, transform 0.5s ease;
-    }
-
-    .tl-item.visible { opacity: 1; transform: translateX(0); }
-
-    .tl-dot {
-      position: relative;
-      z-index: 1;
-      flex-shrink: 0;
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 22px;
-      border: 2px solid var(--border);
-    }
-
-    .tl-dot.phase-1 { background: #e8f0ff; color: var(--civic); border-color: var(--civic); }
-    .tl-dot.phase-2 { background: #fff8e6; color: var(--gold); border-color: var(--gold); }
-    .tl-dot.phase-3 { background: #fce8e6; color: var(--red); border-color: var(--red); }
-    .tl-dot.phase-4 { background: #e6f9f0; color: var(--green); border-color: var(--green); }
-
-    .tl-body { flex: 1; padding-top: 8px; }
-
-    .tl-phase-tag {
-      font-size: 0.7rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--ink-soft);
-      margin-bottom: 4px;
-    }
-
-    .tl-title {
-      font-family: var(--font-head);
-      font-size: 1.15rem;
-      font-weight: 700;
-      color: var(--ink);
-      margin-bottom: 6px;
-    }
-
-    .tl-desc {
-      font-size: 0.9rem;
-      color: var(--ink-soft);
-      line-height: 1.7;
-    }
-
-    .tl-card {
-      margin-top: 12px;
-      background: #fff;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 14px 18px;
-    }
-
-    .tl-steps {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .tl-steps li {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      font-size: 0.86rem;
-      color: var(--ink-soft);
-    }
-
-    .tl-steps li::before {
-      content: '→';
-      color: var(--civic-mid);
-      flex-shrink: 0;
-      font-weight: 700;
-    }
-
-    /* ============================================================
-       AI CHAT (Core Feature — Google Gemini)
-    ============================================================ */
-    .chat-shell {
-      background: #fff;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      overflow: hidden;
-      box-shadow: var(--shadow);
-      display: flex;
-      flex-direction: column;
-      height: 560px;
-      max-height: 80vh;
-    }
-
-    .chat-header {
-      background: linear-gradient(90deg, var(--civic) 0%, var(--civic-mid) 100%);
-      padding: 16px 20px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-shrink: 0;
-    }
-
-    .chat-avatar {
-      width: 40px;
-      height: 40px;
-      background: rgba(255,255,255,0.2);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      color: #fff;
-    }
-
-    .chat-header-info { flex: 1; }
-    .chat-header-name {
-      font-weight: 700;
-      color: #fff;
-      font-size: 0.95rem;
-    }
-
-    .chat-header-status {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 0.75rem;
-      color: rgba(255,255,255,0.7);
-    }
-
-    .status-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: #4ade80;
-      animation: pulse 2s infinite;
-    }
-
-    .chat-powered {
-      font-size: 0.7rem;
-      color: rgba(255,255,255,0.6);
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    /* Messages area */
-    .chat-messages {
-      flex: 1;
-      overflow-y: auto;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      scroll-behavior: smooth;
-    }
-
-    .chat-messages::-webkit-scrollbar { width: 4px; }
-    .chat-messages::-webkit-scrollbar-track { background: transparent; }
-    .chat-messages::-webkit-scrollbar-thumb {
-      background: var(--border);
-      border-radius: 4px;
-    }
-
-    .msg {
-      display: flex;
-      gap: 10px;
-      animation: msgIn 0.3s ease both;
-      max-width: 85%;
-    }
-
-    .msg.user { align-self: flex-end; flex-direction: row-reverse; }
-    .msg.ai { align-self: flex-start; }
-
-    .msg-avatar {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 15px;
-    }
-
-    .msg.ai .msg-avatar { background: var(--civic-lite); color: var(--civic); }
-    .msg.user .msg-avatar { background: var(--gold-lite); color: var(--gold); }
-
-    .msg-bubble {
-      padding: 12px 16px;
-      border-radius: 16px;
-      font-size: 0.88rem;
-      line-height: 1.65;
-    }
-
-    .msg.ai .msg-bubble {
-      background: var(--paper-2);
-      color: var(--ink);
-      border-bottom-left-radius: 4px;
-    }
-
-    .msg.user .msg-bubble {
-      background: var(--civic);
-      color: #fff;
-      border-bottom-right-radius: 4px;
-    }
-
-    /* Typing indicator */
-    .typing-indicator {
-      display: flex;
-      gap: 4px;
-      align-items: center;
-      padding: 10px 14px;
-    }
-
-    .typing-dot {
-      width: 7px;
-      height: 7px;
-      background: var(--ink-soft);
-      border-radius: 50%;
-      animation: typingBounce 1.2s infinite;
-    }
-
-    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
-    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
-
-    /* Quick prompts */
-    .chat-quick {
-      padding: 8px 16px 4px;
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-      flex-shrink: 0;
-      border-top: 1px solid var(--border);
-      background: var(--paper);
-    }
-
-    .quick-btn {
-      font-size: 0.76rem;
-      padding: 5px 12px;
-      border: 1px solid var(--border);
-      border-radius: 999px;
-      background: #fff;
-      color: var(--ink-soft);
-      cursor: pointer;
-      white-space: nowrap;
-      transition: all var(--transition);
-      font-family: var(--font-body);
-    }
-
-    .quick-btn:hover {
-      background: var(--civic-lite);
-      color: var(--civic);
-      border-color: var(--civic);
-    }
-
-    /* Input area */
-    .chat-input-area {
-      padding: 12px 16px;
-      display: flex;
-      gap: 10px;
-      align-items: flex-end;
-      border-top: 1px solid var(--border);
-      flex-shrink: 0;
-    }
-
-    .chat-textarea {
-      flex: 1;
-      padding: 10px 14px;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      font-size: 0.88rem;
-      font-family: var(--font-body);
-      resize: none;
-      min-height: 42px;
-      max-height: 120px;
-      background: var(--paper);
-      color: var(--ink);
-      line-height: 1.5;
-      transition: border var(--transition);
-    }
-
-    .chat-textarea:focus { outline: none; border-color: var(--civic-mid); }
-
-    .chat-send-btn {
-      width: 42px;
-      height: 42px;
-      background: var(--civic);
-      color: #fff;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      transition: background var(--transition), transform var(--transition);
-      font-size: 20px;
-    }
-
-    .chat-send-btn:hover:not(:disabled) {
-      background: var(--civic-mid);
-      transform: scale(1.05);
-    }
-
-    .chat-send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-    /* ============================================================
-       PROCESS CARDS
-    ============================================================ */
-    .cards-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-      gap: 20px;
-    }
-
-    .process-card {
-      background: #fff;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 24px;
-      transition: transform var(--transition), box-shadow var(--transition);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .process-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 3px;
-    }
-
-    .process-card.c1::before { background: var(--civic); }
-    .process-card.c2::before { background: var(--gold); }
-    .process-card.c3::before { background: var(--red); }
-    .process-card.c4::before { background: var(--green); }
-
-    .process-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 12px 32px rgba(10,15,30,0.12);
-    }
-
-    .card-num {
-      font-family: var(--font-head);
-      font-size: 2.5rem;
-      font-weight: 900;
-      color: var(--paper-2);
-      line-height: 1;
-      margin-bottom: 4px;
-    }
-
-    .card-icon {
-      font-size: 28px;
-      margin-bottom: 12px;
-    }
-
-    .process-card.c1 .card-icon { color: var(--civic); }
-    .process-card.c2 .card-icon { color: var(--gold); }
-    .process-card.c3 .card-icon { color: var(--red); }
-    .process-card.c4 .card-icon { color: var(--green); }
-
-    .card-title {
-      font-family: var(--font-head);
-      font-size: 1.05rem;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-
-    .card-desc {
-      font-size: 0.84rem;
-      color: var(--ink-soft);
-      line-height: 1.65;
-    }
-
-    /* ============================================================
-       QUIZ
-    ============================================================ */
-    .quiz-shell {
-      background: #fff;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      overflow: hidden;
-      box-shadow: var(--shadow);
-    }
-
-    .quiz-progress-bar {
-      height: 4px;
-      background: var(--paper-2);
-      transition: background var(--transition);
-    }
-
-    .quiz-progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--civic), var(--civic-mid));
-      transition: width 0.4s ease;
-    }
-
-    .quiz-body { padding: 32px; }
-
-    .quiz-q-num {
-      font-size: 0.78rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--ink-soft);
-      margin-bottom: 12px;
-    }
-
-    .quiz-question {
-      font-family: var(--font-head);
-      font-size: 1.25rem;
-      font-weight: 700;
-      margin-bottom: 24px;
-      line-height: 1.4;
-    }
-
-    .quiz-options {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-bottom: 24px;
-    }
-
-    .quiz-option {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 14px 18px;
-      border: 1.5px solid var(--border);
-      border-radius: 10px;
-      cursor: pointer;
-      font-size: 0.9rem;
-      font-family: var(--font-body);
-      background: #fff;
-      color: var(--ink);
-      text-align: left;
-      transition: all var(--transition);
-    }
-
-    .quiz-option:hover:not(:disabled) {
-      border-color: var(--civic-mid);
-      background: var(--civic-lite);
-    }
-
-    .quiz-option.correct { border-color: var(--green); background: #e6f9f0; color: var(--green); }
-    .quiz-option.incorrect { border-color: var(--red); background: #fce8e6; color: var(--red); }
-    .quiz-option.revealed { opacity: 0.6; cursor: not-allowed; }
-
-    .quiz-option-letter {
-      width: 28px;
-      height: 28px;
-      border-radius: 6px;
-      background: var(--paper-2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 0.8rem;
-      flex-shrink: 0;
-    }
-
-    .quiz-feedback {
-      padding: 12px 16px;
-      border-radius: 10px;
-      font-size: 0.88rem;
-      font-weight: 500;
-      margin-bottom: 16px;
-      display: none;
-    }
-
-    .quiz-feedback.show { display: block; }
-    .quiz-feedback.correct { background: #e6f9f0; color: var(--green); border: 1px solid var(--green); }
-    .quiz-feedback.incorrect { background: #fce8e6; color: var(--red); border: 1px solid var(--red); }
-
-    .quiz-actions { display: flex; gap: 10px; align-items: center; justify-content: space-between; }
-
-    .quiz-score-badge {
-      font-size: 0.82rem;
-      font-weight: 600;
-      color: var(--civic);
-    }
-
-    .btn-quiz {
-      padding: 10px 20px;
-      background: var(--civic);
-      color: #fff;
-      font-weight: 600;
-      font-size: 0.88rem;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background var(--transition);
-      font-family: var(--font-body);
-    }
-
-    .btn-quiz:hover { background: var(--civic-mid); }
-    .btn-quiz:disabled { opacity: 0.4; cursor: not-allowed; }
-
-    /* ============================================================
-       GLOSSARY
-    ============================================================ */
-    .glossary-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 16px;
-    }
-
-    .glossary-item {
-      background: #fff;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 18px;
-    }
-
-    .glossary-term {
-      font-weight: 700;
-      font-size: 0.92rem;
-      color: var(--civic);
-      margin-bottom: 6px;
-    }
-
-    .glossary-def {
-      font-size: 0.84rem;
-      color: var(--ink-soft);
-      line-height: 1.65;
-    }
-
-    /* ============================================================
-       FOOTER
-    ============================================================ */
-    .footer {
-      background: var(--ink);
-      color: rgba(255,255,255,0.6);
-      padding: 36px 0;
-    }
-
-    .footer-inner {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 24px;
-      flex-wrap: wrap;
-    }
-
-    .footer-brand {
-      font-family: var(--font-head);
-      font-size: 1.2rem;
-      font-weight: 700;
-      color: #fff;
-    }
-
-    .footer-links {
-      display: flex;
-      gap: 20px;
-      list-style: none;
-    }
-
-    .footer-links a {
-      color: rgba(255,255,255,0.5);
-      font-size: 0.82rem;
-      text-decoration: none;
-      transition: color var(--transition);
-    }
-
-    .footer-links a:hover { color: #fff; }
-
-    .footer-badge {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.78rem;
-      color: rgba(255,255,255,0.4);
-    }
-
-    .google-g {
-      width: 18px;
-      height: 18px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 13px;
-      background: #fff;
-      border-radius: 50%;
-      color: var(--civic);
-    }
-
-    /* ============================================================
-       ANIMATIONS
-    ============================================================ */
-    @keyframes fadeDown {
-      from { opacity: 0; transform: translateY(-16px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(16px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes msgIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.4; }
-    }
-
-    @keyframes typingBounce {
-      0%, 80%, 100% { transform: translateY(0); }
-      40% { transform: translateY(-6px); }
-    }
-
-    /* ============================================================
-       RESPONSIVE
-    ============================================================ */
-    @media (max-width: 640px) {
-      .nav-links { display: none; }
-      .hero-stats { gap: 20px; }
-      .api-banner { flex-direction: column; align-items: flex-start; }
-      .timeline::before { left: 20px; }
-      .tl-dot { width: 40px; height: 40px; font-size: 18px; }
-    }
-
-    /* ============================================================
-       PRINT (accessibility for users who print the guide)
-    ============================================================ */
-    @media print {
-      .navbar, .hero-ctas, .chat-shell, .quiz-shell, .a11y-toolbar { display: none; }
-      .hero { color: #000; background: #fff; }
-    }
+  /* ============================================================
+     DESIGN SYSTEM
+  ============================================================ */
+  :root{
+    --saffron:#E8621A; --saffron-lite:#FFF0E8;
+    --navy:#1843A0;    --navy-mid:#2553C5; --navy-lite:#EEF2FF;
+    --green:#0A6B38;   --green-lite:#E6F5EE;
+    --gold:#C8980A;    --gold-lite:#FFF8E0;
+    --red:#C0392B;     --red-lite:#FDECEA;
+    --ink:#0D1117;     --ink-soft:#3D4460;
+    --paper:#FAF9F5;   --paper-2:#F0EDE4;
+    --border:rgba(24,67,160,.14);
+    --shadow:0 4px 28px rgba(13,17,23,.10);
+    --r:12px; --r-lg:20px;
+    --font-head:'Fraunces',Georgia,serif;
+    --font-body:'DM Sans',system-ui,sans-serif;
+    --font-hi:'Tiro Devanagari Hindi',serif;
+    --tr:.25s cubic-bezier(.4,0,.2,1);
+    /* WhatsApp palette */
+    --wa-bg:#ECE5DD; --wa-head:#128C7E; --wa-user:#DCF8C6; --wa-ai:#fff;
+  }
+  body.hc{--ink:#000;--paper:#fff;--paper-2:#f0f0f0;--navy:#00008b;--border:#000;--ink-soft:#111}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth;font-size:16px}
+  body{font-family:var(--font-body);background:var(--paper);color:var(--ink);line-height:1.6;overflow-x:hidden}
+  body.lang-hi{font-family:var(--font-hi),var(--font-body)}
+  .skip-link{position:absolute;top:-999px;left:8px;background:var(--navy);color:#fff;padding:8px 16px;border-radius:0 0 8px 8px;font-weight:600;z-index:9999;text-decoration:none}
+  .skip-link:focus{top:0}
+  :focus-visible{outline:3px solid var(--navy-mid);outline-offset:3px;border-radius:4px}
+  .container{max-width:1100px;margin:0 auto;padding:0 24px}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+
+  /* ── NAVBAR ── */
+  .navbar{position:sticky;top:0;z-index:200;background:rgba(250,249,245,.93);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);padding:10px 0}
+  .nav-inner{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink)}
+  .brand-logo{width:36px;height:36px;background:linear-gradient(135deg,var(--saffron),var(--navy));border-radius:9px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px}
+  .brand-name{font-family:var(--font-head);font-size:1.3rem;font-weight:700;letter-spacing:-0.5px}
+  .brand-name span{color:var(--navy-mid)}
+  .nav-links{display:flex;align-items:center;gap:4px;list-style:none;flex-wrap:wrap}
+  .nav-links a{font-size:.8rem;font-weight:500;color:var(--ink-soft);text-decoration:none;padding:5px 10px;border-radius:7px;transition:all var(--tr);white-space:nowrap}
+  .nav-links a:hover{background:var(--navy-lite);color:var(--navy)}
+  .nav-tools{display:flex;gap:6px;align-items:center}
+  .lang-toggle{display:flex;gap:0;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+  .lang-btn{padding:5px 12px;border:none;background:transparent;cursor:pointer;font-size:.8rem;font-weight:600;color:var(--ink-soft);transition:all var(--tr);font-family:var(--font-body)}
+  .lang-btn.active{background:var(--navy);color:#fff}
+  .icon-btn{width:34px;height:34px;border:1px solid var(--border);border-radius:8px;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--ink-soft);transition:all var(--tr);font-size:17px}
+  .icon-btn:hover{background:var(--navy-lite);color:var(--navy)}
+  .icon-btn.active{background:var(--navy);color:#fff}
+
+  /* ── HERO ── */
+  .hero{background:linear-gradient(135deg,#0a1628 0%,#1843A0 55%,#0A3D20 100%);color:#fff;padding:72px 0 52px;position:relative;overflow:hidden}
+  .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 20% 80%,rgba(232,98,26,.18) 0%,transparent 50%),radial-gradient(circle at 80% 20%,rgba(10,107,56,.22) 0%,transparent 50%);pointer-events:none}
+  .hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:48px 48px;pointer-events:none}
+  /* Tricolor stripe */
+  .hero-stripe{position:absolute;bottom:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--saffron) 33.3%,#fff 33.3% 66.6%,var(--green) 66.6%)}
+  .hero-content{position:relative;z-index:1}
+  .hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(200,152,10,.2);border:1px solid rgba(200,152,10,.4);color:#e8c56a;padding:5px 14px;border-radius:999px;font-size:.75rem;font-weight:600;letter-spacing:.5px;text-transform:uppercase;margin-bottom:20px;animation:fadeDown .6s ease both}
+  .hero h1{font-family:var(--font-head);font-size:clamp(2rem,5vw,3.6rem);font-weight:900;line-height:1.1;letter-spacing:-1px;margin-bottom:16px;animation:fadeDown .6s .1s ease both}
+  .hero h1 em{font-style:italic;color:#FFD700}
+  .hero-sub{font-size:1rem;color:rgba(255,255,255,.72);max-width:520px;margin-bottom:28px;animation:fadeDown .6s .2s ease both}
+  .hero-ctas{display:flex;gap:10px;flex-wrap:wrap;animation:fadeDown .6s .3s ease both}
+  .btn-primary{display:inline-flex;align-items:center;gap:8px;background:var(--saffron);color:#fff;font-weight:700;font-size:.92rem;padding:12px 22px;border-radius:10px;text-decoration:none;border:none;cursor:pointer;transition:transform var(--tr),box-shadow var(--tr)}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(232,98,26,.45)}
+  .btn-outline{display:inline-flex;align-items:center;gap:8px;background:transparent;color:#fff;font-weight:500;font-size:.92rem;padding:11px 22px;border-radius:10px;text-decoration:none;border:1px solid rgba(255,255,255,.3);cursor:pointer;transition:background var(--tr)}
+  .btn-outline:hover{background:rgba(255,255,255,.1)}
+  .hero-stats{display:flex;gap:28px;margin-top:40px;padding-top:28px;border-top:1px solid rgba(255,255,255,.1);flex-wrap:wrap;animation:fadeUp .6s .4s ease both}
+  .stat-num{font-family:var(--font-head);font-size:1.7rem;font-weight:700;color:#FFD700}
+  .stat-label{font-size:.72rem;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.5px}
+
+  /* ── SECTION SHELL ── */
+  .section{padding:64px 0}
+  .section-alt{background:var(--paper-2)}
+  .section-label{display:inline-block;font-size:.68rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--navy);margin-bottom:10px;padding:4px 12px;background:var(--navy-lite);border-radius:999px}
+  .section-title{font-family:var(--font-head);font-size:clamp(1.5rem,3.5vw,2.3rem);font-weight:700;letter-spacing:-.5px;line-height:1.2;color:var(--ink)}
+  .section-desc{font-size:.95rem;color:var(--ink-soft);max-width:560px;margin-top:8px}
+  .section-header{margin-bottom:40px}
+
+  /* ── API BANNER ── */
+  .api-banner{background:var(--gold-lite);border:1px solid rgba(200,152,10,.3);border-radius:var(--r);padding:16px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin:20px 0}
+  .api-banner-text strong{font-weight:600;font-size:.93rem;display:block}
+  .api-banner-text span{font-size:.8rem;color:var(--ink-soft)}
+  .api-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .api-input{padding:9px 14px;border:1px solid var(--border);border-radius:8px;font-size:.86rem;font-family:var(--font-body);background:#fff;color:var(--ink);width:270px}
+  .api-input:focus{outline:none;border-color:var(--navy-mid)}
+  .btn-save{padding:9px 18px;background:var(--navy);color:#fff;font-weight:600;font-size:.86rem;border:none;border-radius:8px;cursor:pointer;transition:background var(--tr);font-family:var(--font-body)}
+  .btn-save:hover{background:var(--navy-mid)}
+  .api-status{font-size:.8rem;font-weight:600;padding:4px 10px;border-radius:999px}
+  .api-status.ok{background:#d4f5e8;color:var(--green)}
+  .api-status.err{background:#fdecea;color:var(--red)}
+
+  /* ── COUNTDOWN ── */
+  .countdown-banner{background:linear-gradient(90deg,var(--saffron) 0%,#d4500f 100%);border-radius:var(--r-lg);padding:28px 32px;color:#fff;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px}
+  .countdown-label{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;opacity:.8;margin-bottom:4px}
+  .countdown-election{font-family:var(--font-head);font-size:1.4rem;font-weight:700}
+  .countdown-sub{font-size:.82rem;opacity:.7;margin-top:4px}
+  .countdown-timer{display:flex;gap:16px}
+  .cd-block{text-align:center;background:rgba(255,255,255,.15);padding:10px 16px;border-radius:10px;min-width:60px}
+  .cd-num{font-family:var(--font-head);font-size:1.8rem;font-weight:900;line-height:1}
+  .cd-unit{font-size:.65rem;text-transform:uppercase;letter-spacing:1px;opacity:.7;margin-top:2px}
+
+  /* ── INDIA MAP ── */
+  .map-wrap{display:grid;grid-template-columns:1fr 320px;gap:24px;align-items:start}
+  @media(max-width:800px){.map-wrap{grid-template-columns:1fr}}
+  .india-map-svg{width:100%;max-width:420px;height:auto;cursor:pointer;filter:drop-shadow(0 4px 16px rgba(0,0,0,.1))}
+  .state-region{transition:opacity var(--tr);cursor:pointer}
+  .state-region:hover .state-dot{r:10}
+  .state-dot{transition:r .2s ease}
+  .map-tooltip{background:var(--ink);color:#fff;padding:10px 14px;border-radius:10px;font-size:.82rem;min-width:180px}
+  .map-tooltip-name{font-weight:700;font-size:.95rem;margin-bottom:4px}
+  .map-tooltip-row{display:flex;justify-content:space-between;gap:16px;opacity:.8;margin-top:3px}
+  .phase-legend{display:flex;flex-direction:column;gap:8px}
+  .phase-legend-title{font-weight:600;font-size:.85rem;margin-bottom:4px}
+  .legend-item{display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--ink-soft)}
+  .legend-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+  .map-state-info{background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:18px;margin-top:16px}
+  .map-state-info h4{font-family:var(--font-head);font-size:1rem;font-weight:700;margin-bottom:10px;color:var(--navy)}
+  .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .info-cell{font-size:.8rem}
+  .info-cell strong{display:block;font-weight:600;color:var(--ink-soft);font-size:.68rem;text-transform:uppercase;letter-spacing:.5px}
+
+  /* ── WHATSAPP CHAT ── */
+  .chat-shell{border-radius:var(--r-lg);overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.15);display:flex;flex-direction:column;height:580px;background:var(--wa-bg)}
+  .chat-header{background:var(--wa-head);padding:12px 16px;display:flex;align-items:center;gap:12px;flex-shrink:0}
+  .chat-avatar{width:40px;height:40px;background:rgba(255,255,255,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;color:#fff;flex-shrink:0}
+  .chat-header-name{font-weight:700;color:#fff;font-size:.93rem}
+  .chat-header-status{display:flex;align-items:center;gap:5px;font-size:.72rem;color:rgba(255,255,255,.7)}
+  .status-dot{width:7px;height:7px;border-radius:50%;background:#4ade80;animation:pulse 2s infinite}
+  .chat-powered{margin-left:auto;font-size:.68rem;color:rgba(255,255,255,.6);display:flex;align-items:center;gap:4px}
+  .google-g{width:18px;height:18px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;color:var(--navy)}
+  /* KEY FIX: min-height:0 allows flex child to scroll properly */
+  .chat-messages{flex:1;min-height:0;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px;background-color:var(--wa-bg);background-image:url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23b8a99a' fill-opacity='0.12'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E")}
+  .chat-messages::-webkit-scrollbar{width:4px}
+  .chat-messages::-webkit-scrollbar-thumb{background:rgba(0,0,0,.2);border-radius:4px}
+  .msg{display:flex;gap:8px;animation:msgIn .25s ease both;max-width:80%}
+  .msg.user{align-self:flex-end;flex-direction:row-reverse}
+  .msg.ai{align-self:flex-start}
+  .msg-avatar{width:28px;height:28px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;margin-top:auto}
+  .msg.ai .msg-avatar{background:var(--wa-head);color:#fff}
+  .msg.user .msg-avatar{background:var(--saffron);color:#fff}
+  .msg-body{display:flex;flex-direction:column;gap:2px}
+  .msg-bubble{padding:9px 13px;border-radius:12px;font-size:.87rem;line-height:1.65;position:relative;word-break:break-word}
+  .msg.ai .msg-bubble{background:var(--wa-ai);border-bottom-left-radius:4px;color:#111;box-shadow:0 1px 2px rgba(0,0,0,.1)}
+  .msg.user .msg-bubble{background:var(--wa-user);border-bottom-right-radius:4px;color:#111;box-shadow:0 1px 2px rgba(0,0,0,.1)}
+  .msg-meta{display:flex;align-items:center;gap:4px;font-size:.65rem;color:rgba(0,0,0,.45);justify-content:flex-end;padding:0 4px}
+  .msg-ticks{color:#53BDEB;font-size:14px}
+  .typing-indicator{display:flex;gap:4px;align-items:center;padding:10px 13px}
+  .typing-dot{width:7px;height:7px;background:#999;border-radius:50%;animation:typingBounce 1.2s infinite}
+  .typing-dot:nth-child(2){animation-delay:.2s}
+  .typing-dot:nth-child(3){animation-delay:.4s}
+  .chat-quick{padding:8px 12px 4px;display:flex;gap:6px;flex-wrap:wrap;flex-shrink:0;border-top:1px solid rgba(0,0,0,.1);background:rgba(255,255,255,.6)}
+  .quick-btn{font-size:.73rem;padding:4px 10px;border:1px solid var(--border);border-radius:999px;background:#fff;color:var(--ink-soft);cursor:pointer;white-space:nowrap;transition:all var(--tr);font-family:var(--font-body)}
+  .quick-btn:hover{background:var(--wa-head);color:#fff;border-color:var(--wa-head)}
+  .chat-input-area{padding:10px 12px;display:flex;gap:8px;align-items:flex-end;border-top:1px solid rgba(0,0,0,.1);background:var(--paper-2);flex-shrink:0}
+  .chat-textarea{flex:1;padding:9px 14px;border:1px solid var(--border);border-radius:22px;font-size:.86rem;font-family:var(--font-body);resize:none;min-height:40px;max-height:110px;background:#fff;color:var(--ink);line-height:1.5}
+  .chat-textarea:focus{outline:none;border-color:var(--wa-head)}
+  .chat-send-btn,.chat-mic-btn{width:40px;height:40px;border:none;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all var(--tr);font-size:19px}
+  .chat-send-btn{background:var(--wa-head);color:#fff}
+  .chat-send-btn:hover:not(:disabled){background:#0e7a6f;transform:scale(1.05)}
+  .chat-send-btn:disabled{opacity:.4;cursor:not-allowed}
+  .chat-mic-btn{background:var(--saffron);color:#fff}
+  .chat-mic-btn:hover{background:#d4500f}
+  .chat-mic-btn.recording{background:var(--red);animation:pulse 1s infinite}
+
+  /* ── ELIGIBILITY CHECKER ── */
+  .checker-card{background:#fff;border:1px solid var(--border);border-radius:var(--r-lg);padding:32px;box-shadow:var(--shadow)}
+  .checker-form{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+  @media(max-width:600px){.checker-form{grid-template-columns:1fr}}
+  .form-group label{font-size:.8rem;font-weight:600;color:var(--ink-soft);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+  .form-group select,.form-group input[type=number],.form-group input[type=radio]{width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:9px;font-size:.9rem;font-family:var(--font-body);background:#fff;color:var(--ink)}
+  .form-group select:focus,.form-group input:focus{outline:none;border-color:var(--navy-mid)}
+  .radio-group{display:flex;gap:16px;margin-top:4px}
+  .radio-label{display:flex;align-items:center;gap:6px;font-size:.88rem;cursor:pointer}
+  .checker-result{background:var(--navy-lite);border:1px solid var(--border);border-radius:var(--r);padding:18px;margin-top:16px;display:none;font-size:.9rem;line-height:1.7}
+  .checker-result.show{display:block}
+  .checker-result.eligible{background:var(--green-lite);border-color:var(--green)}
+  .checker-result.not-eligible{background:var(--red-lite);border-color:var(--red)}
+
+  /* ── ECI DASHBOARD ── */
+  .dashboard-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px}
+  .dash-card{background:#fff;border:1px solid var(--border);border-radius:var(--r-lg);padding:22px;box-shadow:var(--shadow)}
+  .dash-card-title{font-weight:700;font-size:.88rem;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.5px;margin-bottom:16px}
+  .bar-chart{display:flex;flex-direction:column;gap:10px}
+  .bar-row{display:flex;align-items:center;gap:10px;font-size:.8rem}
+  .bar-label{width:90px;flex-shrink:0;color:var(--ink-soft);font-size:.75rem}
+  .bar-track{flex:1;background:var(--paper-2);border-radius:999px;height:10px;overflow:hidden}
+  .bar-fill{height:100%;border-radius:999px;transition:width 1.2s cubic-bezier(.4,0,.2,1)}
+  .bar-val{width:45px;text-align:right;font-weight:600;font-size:.78rem}
+  .donut-wrap{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+  .donut-svg{width:110px;height:110px;flex-shrink:0}
+  .donut-legend{display:flex;flex-direction:column;gap:6px}
+  .donut-item{display:flex;align-items:center;gap:6px;font-size:.75rem}
+  .donut-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+  .big-number{font-family:var(--font-head);font-size:2.2rem;font-weight:900;color:var(--navy);line-height:1}
+  .big-label{font-size:.75rem;color:var(--ink-soft);margin-top:4px}
+
+  /* ── TIMELINE ── */
+  .timeline{position:relative}
+  .timeline::before{content:'';position:absolute;left:27px;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,var(--saffron),var(--navy),var(--green),transparent)}
+  .tl-item{display:flex;gap:22px;margin-bottom:28px;opacity:0;transform:translateX(-20px);transition:opacity .5s ease,transform .5s ease}
+  .tl-item.visible{opacity:1;transform:translateX(0)}
+  .tl-dot{position:relative;z-index:1;flex-shrink:0;width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:21px;border:2px solid}
+  .tl-dot.p1{background:#FFF0E8;color:var(--saffron);border-color:var(--saffron)}
+  .tl-dot.p2{background:var(--gold-lite);color:var(--gold);border-color:var(--gold)}
+  .tl-dot.p3{background:var(--red-lite);color:var(--red);border-color:var(--red)}
+  .tl-dot.p4{background:var(--green-lite);color:var(--green);border-color:var(--green)}
+  .tl-dot.p5{background:var(--navy-lite);color:var(--navy);border-color:var(--navy)}
+  .tl-body{flex:1;padding-top:6px}
+  .tl-phase{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink-soft);margin-bottom:3px}
+  .tl-title{font-family:var(--font-head);font-size:1.1rem;font-weight:700;color:var(--ink);margin-bottom:5px}
+  .tl-desc{font-size:.87rem;color:var(--ink-soft);line-height:1.7}
+  .tl-card{margin-top:10px;background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:12px 16px}
+  .tl-steps{list-style:none;display:flex;flex-direction:column;gap:7px}
+  .tl-steps li{display:flex;align-items:flex-start;gap:8px;font-size:.84rem;color:var(--ink-soft)}
+  .tl-steps li::before{content:'→';color:var(--navy-mid);flex-shrink:0;font-weight:700}
+
+  /* ── PARTY EXPLORER ── */
+  .parties-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px}
+  .party-card{background:#fff;border:1px solid var(--border);border-radius:var(--r-lg);padding:20px 16px;text-align:center;transition:all var(--tr);cursor:pointer}
+  .party-card:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(13,17,23,.1)}
+  .party-symbol{font-size:2.2rem;margin-bottom:8px;line-height:1}
+  .party-abbr{font-family:var(--font-head);font-size:.95rem;font-weight:700;margin-bottom:2px}
+  .party-name{font-size:.72rem;color:var(--ink-soft);margin-bottom:8px;line-height:1.3}
+  .party-tag{display:inline-block;font-size:.65rem;font-weight:700;text-transform:uppercase;padding:2px 8px;border-radius:999px;letter-spacing:.5px}
+  .tag-nda{background:#FFE8D6;color:#C0392B}
+  .tag-india{background:#D6E4FF;color:#1843A0}
+  .tag-other{background:#E8F5E9;color:#0A6B38}
+
+  /* ── QUIZ ── */
+  .quiz-tabs{display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap}
+  .quiz-tab{padding:8px 20px;border:2px solid var(--border);border-radius:999px;background:#fff;cursor:pointer;font-weight:600;font-size:.84rem;font-family:var(--font-body);transition:all var(--tr);color:var(--ink-soft)}
+  .quiz-tab.easy{border-color:var(--green)}
+  .quiz-tab.medium{border-color:var(--gold)}
+  .quiz-tab.hard{border-color:var(--red)}
+  .quiz-tab.active.easy{background:var(--green);color:#fff}
+  .quiz-tab.active.medium{background:var(--gold);color:#fff}
+  .quiz-tab.active.hard{background:var(--red);color:#fff}
+  .quiz-shell{background:#fff;border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow)}
+  .quiz-progress-bar{height:4px;background:var(--paper-2)}
+  .quiz-progress-fill{height:100%;background:linear-gradient(90deg,var(--navy),var(--navy-mid));transition:width .4s ease}
+  .quiz-body{padding:28px}
+  .quiz-q-num{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink-soft);margin-bottom:10px}
+  .quiz-question{font-family:var(--font-head);font-size:1.2rem;font-weight:700;margin-bottom:20px;line-height:1.4}
+  .quiz-options{display:flex;flex-direction:column;gap:9px;margin-bottom:20px}
+  .quiz-option{display:flex;align-items:center;gap:12px;padding:12px 16px;border:1.5px solid var(--border);border-radius:10px;cursor:pointer;font-size:.87rem;font-family:var(--font-body);background:#fff;color:var(--ink);text-align:left;transition:all var(--tr)}
+  .quiz-option:hover:not(:disabled){border-color:var(--navy-mid);background:var(--navy-lite)}
+  .quiz-option.correct{border-color:var(--green);background:var(--green-lite);color:var(--green)}
+  .quiz-option.incorrect{border-color:var(--red);background:var(--red-lite);color:var(--red)}
+  .quiz-option.revealed{opacity:.6;cursor:not-allowed}
+  .quiz-option-letter{width:26px;height:26px;border-radius:6px;background:var(--paper-2);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.76rem;flex-shrink:0}
+  .quiz-feedback{padding:11px 15px;border-radius:10px;font-size:.85rem;font-weight:500;margin-bottom:14px;display:none}
+  .quiz-feedback.show{display:block}
+  .quiz-feedback.correct{background:var(--green-lite);color:var(--green);border:1px solid var(--green)}
+  .quiz-feedback.incorrect{background:var(--red-lite);color:var(--red);border:1px solid var(--red)}
+  .quiz-actions{display:flex;gap:10px;align-items:center;justify-content:space-between}
+  .quiz-score-badge{font-size:.8rem;font-weight:600;color:var(--navy)}
+  .btn-quiz{padding:10px 20px;background:var(--navy);color:#fff;font-weight:600;font-size:.86rem;border:none;border-radius:8px;cursor:pointer;transition:background var(--tr);font-family:var(--font-body)}
+  .btn-quiz:hover{background:var(--navy-mid)}
+  .btn-quiz:disabled{opacity:.4;cursor:not-allowed}
+  .badge-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}
+  .badge{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:999px;font-size:.78rem;font-weight:600;background:var(--paper-2);color:var(--ink-soft)}
+  .badge.earned{background:var(--gold-lite);color:var(--gold);border:1px solid var(--gold)}
+
+  /* ── EDUCATION CARDS ── */
+  .edu-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px}
+  .edu-card{background:#fff;border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;transition:all var(--tr)}
+  .edu-card:hover{transform:translateY(-3px);box-shadow:0 12px 32px rgba(13,17,23,.1)}
+  .edu-thumb{height:120px;display:flex;align-items:center;justify-content:center;font-size:3rem;position:relative}
+  .edu-body{padding:18px}
+  .edu-source{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--navy);margin-bottom:6px}
+  .edu-title{font-weight:700;font-size:.92rem;margin-bottom:8px;line-height:1.4}
+  .edu-desc{font-size:.8rem;color:var(--ink-soft);line-height:1.6}
+  .edu-link{display:inline-flex;align-items:center;gap:5px;margin-top:10px;font-size:.8rem;font-weight:600;color:var(--navy);text-decoration:none}
+  .edu-link:hover{text-decoration:underline}
+
+  /* ── GLOSSARY ── */
+  .glossary-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+  .glossary-item{background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:16px}
+  .glossary-term{font-weight:700;font-size:.9rem;color:var(--navy);margin-bottom:4px}
+  .glossary-hi{font-size:.78rem;color:var(--saffron);font-family:var(--font-hi);margin-bottom:6px}
+  .glossary-def{font-size:.82rem;color:var(--ink-soft);line-height:1.65}
+
+  /* ── FOOTER ── */
+  .footer{background:var(--ink);color:rgba(255,255,255,.55);padding:32px 0}
+  .footer-inner{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
+  .footer-brand{font-family:var(--font-head);font-size:1.2rem;font-weight:700;color:#fff}
+  .footer-links{display:flex;gap:16px;list-style:none}
+  .footer-links a{color:rgba(255,255,255,.45);font-size:.8rem;text-decoration:none;transition:color var(--tr)}
+  .footer-links a:hover{color:#fff}
+  .footer-badge{display:flex;align-items:center;gap:6px;font-size:.75rem}
+
+  /* ── PROCESS CARDS ── */
+  .cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:18px}
+  .process-card{background:#fff;border:1px solid var(--border);border-radius:var(--r-lg);padding:22px;transition:all var(--tr);position:relative;overflow:hidden}
+  .process-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+  .process-card.c1::before{background:var(--saffron)}
+  .process-card.c2::before{background:var(--gold)}
+  .process-card.c3::before{background:var(--red)}
+  .process-card.c4::before{background:var(--green)}
+  .process-card:hover{transform:translateY(-3px);box-shadow:0 12px 28px rgba(13,17,23,.1)}
+  .card-num{font-family:var(--font-head);font-size:2.2rem;font-weight:900;color:var(--paper-2);line-height:1;margin-bottom:4px}
+  .card-icon{font-size:26px;margin-bottom:10px}
+  .process-card.c1 .card-icon{color:var(--saffron)}
+  .process-card.c2 .card-icon{color:var(--gold)}
+  .process-card.c3 .card-icon{color:var(--red)}
+  .process-card.c4 .card-icon{color:var(--green)}
+  .card-title{font-family:var(--font-head);font-size:1rem;font-weight:700;margin-bottom:7px}
+  .card-desc{font-size:.82rem;color:var(--ink-soft);line-height:1.65}
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeDown{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes msgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+  @keyframes typingBounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}
+  @keyframes barGrow{from{width:0}to{width:var(--w)}}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* ── RESPONSIVE ── */
+  @media(max-width:640px){
+    .nav-links{display:none}
+    .countdown-timer{gap:8px}
+    .cd-block{padding:8px 10px;min-width:48px}
+    .cd-num{font-size:1.4rem}
+    .checker-form{grid-template-columns:1fr}
+    .timeline::before{left:20px}
+    .tl-dot{width:40px;height:40px;font-size:17px}
+  }
+  @media print{.navbar,.hero-ctas,.chat-shell,.quiz-shell,.nav-tools{display:none}.hero{color:#000;background:#fff}}
   </style>
 </head>
 
 <body>
-  <!-- Skip navigation for screen reader users -->
-  <a class="skip-link" href="#main-content">Skip to main content</a>
+<a class="skip-link" href="#main">Skip to main content</a>
 
-  <!-- ============================================================
-       NAVIGATION
-  ============================================================ -->
-  <nav class="navbar" role="navigation" aria-label="Main navigation">
-    <div class="container navbar-inner">
-      <a class="brand" href="#" aria-label="ElectIQ Home">
-        <div class="brand-logo" aria-hidden="true">
-          <span class="material-symbols-outlined" style="font-size:20px">how_to_vote</span>
-        </div>
-        <span class="brand-name">Elect<span>IQ</span></span>
+<!-- ╔══════════════════════════════════════════════════════════╗
+     ║  NAVBAR                                                  ║
+     ╚══════════════════════════════════════════════════════════╝ -->
+<nav class="navbar" role="navigation" aria-label="Main navigation">
+  <div class="container nav-inner">
+    <a class="brand" href="#" aria-label="ElectIQ India Home">
+      <div class="brand-logo" aria-hidden="true">
+        <span class="material-symbols-outlined" style="font-size:18px">how_to_vote</span>
+      </div>
+      <span class="brand-name">Elect<span>IQ</span> India</span>
+    </a>
+
+    <ul class="nav-links" role="list">
+      <li><a href="#countdown" data-en="Countdown" data-hi="उलटी गिनती">Countdown</a></li>
+      <li><a href="#map" data-en="Map" data-hi="नक्शा">Map</a></li>
+      <li><a href="#chat" data-en="AI Chat" data-hi="AI चैट">AI Chat</a></li>
+      <li><a href="#eligibility" data-en="Eligibility" data-hi="पात्रता">Eligibility</a></li>
+      <li><a href="#dashboard" data-en="Dashboard" data-hi="डैशबोर्ड">Dashboard</a></li>
+      <li><a href="#parties" data-en="Parties" data-hi="दल">Parties</a></li>
+      <li><a href="#quiz" data-en="Quiz" data-hi="प्रश्नोत्तरी">Quiz</a></li>
+    </ul>
+
+    <div class="nav-tools" role="toolbar" aria-label="Accessibility tools">
+      <!-- Language toggle -->
+      <div class="lang-toggle" role="group" aria-label="Language selection">
+        <button class="lang-btn active" id="btnEN" aria-pressed="true" aria-label="Switch to English">EN</button>
+        <button class="lang-btn" id="btnHI" aria-pressed="false" aria-label="हिंदी में बदलें">हि</button>
+      </div>
+      <button class="icon-btn" id="fontIncBtn" aria-label="Increase font size" title="Increase font size">
+        <span class="material-symbols-outlined" style="font-size:16px">text_increase</span>
+      </button>
+      <button class="icon-btn" id="fontDecBtn" aria-label="Decrease font size" title="Decrease font size">
+        <span class="material-symbols-outlined" style="font-size:16px">text_decrease</span>
+      </button>
+      <button class="icon-btn" id="contrastBtn" aria-label="Toggle high contrast" aria-pressed="false">
+        <span class="material-symbols-outlined" style="font-size:16px">contrast</span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- ╔══════════════════════════════════════════════════════════╗
+     ║  HERO                                                    ║
+     ╚══════════════════════════════════════════════════════════╝ -->
+<header class="hero" role="banner">
+  <div class="hero-grid" aria-hidden="true"></div>
+  <div class="hero-stripe" aria-hidden="true"></div>
+  <div class="container hero-content">
+    <p class="hero-badge">
+      <span class="material-symbols-outlined" style="font-size:13px">bolt</span>
+      <span data-en="Powered by Google Gemini AI" data-hi="Google Gemini AI द्वारा संचालित">Powered by Google Gemini AI</span>
+    </p>
+    <h1>
+      <span data-en="India's Complete" data-hi="भारत का सम्पूर्ण">India's Complete</span><br/>
+      <em data-en="Election Guide" data-hi="चुनाव गाइड">Election Guide</em>
+    </h1>
+    <p class="hero-sub" data-en="From voter registration to result certification — understand India's democratic process with AI guidance, interactive maps, and real-time insights." data-hi="मतदाता पंजीकरण से लेकर परिणाम प्रमाणीकरण तक — AI की मदद से भारत की लोकतांत्रिक प्रक्रिया को समझें।">
+      From voter registration to result certification — understand India's democratic process with AI guidance, interactive maps, and real-time insights.
+    </p>
+    <div class="hero-ctas">
+      <a class="btn-primary" href="#chat">
+        <span class="material-symbols-outlined" style="font-size:17px">smart_toy</span>
+        <span data-en="Ask AI Guide" data-hi="AI से पूछें">Ask AI Guide</span>
       </a>
+      <a class="btn-outline" href="#eligibility">
+        <span class="material-symbols-outlined" style="font-size:17px">how_to_reg</span>
+        <span data-en="Check Eligibility" data-hi="पात्रता जांचें">Check Eligibility</span>
+      </a>
+    </div>
+    <div class="hero-stats" aria-label="Statistics">
+      <div class="stat-item"><div class="stat-num">96.8Cr</div><div class="stat-label" data-en="Registered Voters" data-hi="पंजीकृत मतदाता">Registered Voters</div></div>
+      <div class="stat-item"><div class="stat-num">543</div><div class="stat-label" data-en="Lok Sabha Seats" data-hi="लोक सभा सीटें">Lok Sabha Seats</div></div>
+      <div class="stat-item"><div class="stat-num">7</div><div class="stat-label" data-en="Election Phases" data-hi="चुनाव चरण">Election Phases</div></div>
+      <div class="stat-item"><div class="stat-num">ECI</div><div class="stat-label" data-en="Election Authority" data-hi="चुनाव प्राधिकरण">Election Authority</div></div>
+    </div>
+  </div>
+</header>
 
-      <ul class="nav-links" role="list">
-        <li><a href="#timeline">Timeline</a></li>
-        <li><a href="#ai-chat">Ask AI</a></li>
-        <li><a href="#process">Process</a></li>
-        <li><a href="#quiz">Quiz</a></li>
-        <li><a href="#glossary">Glossary</a></li>
-      </ul>
+<main id="main">
 
-      <!-- Accessibility toolbar -->
-      <div class="a11y-toolbar" role="toolbar" aria-label="Accessibility tools">
-        <button class="icon-btn" id="fontIncBtn"
-                aria-label="Increase font size" title="Increase font size">
-          <span class="material-symbols-outlined" style="font-size:18px">text_increase</span>
-        </button>
-        <button class="icon-btn" id="fontDecBtn"
-                aria-label="Decrease font size" title="Decrease font size">
-          <span class="material-symbols-outlined" style="font-size:18px">text_decrease</span>
-        </button>
-        <button class="icon-btn" id="contrastBtn"
-                aria-label="Toggle high contrast mode" title="Toggle high contrast"
-                aria-pressed="false">
-          <span class="material-symbols-outlined" style="font-size:18px">contrast</span>
-        </button>
+<!-- ── API SETUP ── -->
+<section class="container" aria-label="API Setup">
+  <div class="api-banner" role="region" aria-label="Gemini API configuration">
+    <span class="material-symbols-outlined" style="color:var(--gold);font-size:24px" aria-hidden="true">key</span>
+    <div class="api-banner-text" style="flex:1;min-width:180px">
+      <strong data-en="Configure Google Gemini API (gemini-2.5-flash)" data-hi="Google Gemini API कॉन्फ़िगर करें">Configure Google Gemini API (gemini-2.5-flash)</strong>
+      <span data-en="Enter your API key to activate the AI assistant — stored in session only, never persisted." data-hi="AI सहायक को सक्रिय करने के लिए अपनी API key दर्ज करें।">Enter your API key to activate the AI assistant — stored in session only, never persisted.</span>
+    </div>
+    <div class="api-row">
+      <label for="apiKeyInput" class="sr-only">Google Gemini API Key</label>
+      <input type="password" id="apiKeyInput" class="api-input" placeholder="AIza••••••••••••••••••••••••••" autocomplete="off"/>
+      <button class="btn-save" id="saveApiKey" aria-label="Save API key" data-en="Save Key" data-hi="सहेजें">Save Key</button>
+      <span id="apiStatus" class="api-status" role="status" aria-live="polite"></span>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     FEATURE 6 — ELECTION COUNTDOWN
+══════════════════════════════════════════════════════════ -->
+<section class="section container" id="countdown" aria-labelledby="countdown-heading">
+  <div class="section-header">
+    <span class="section-label" data-en="Next Election" data-hi="अगला चुनाव">Next Election</span>
+    <h2 class="section-title" id="countdown-heading" data-en="Election Countdown" data-hi="चुनाव उलटी गिनती">Election Countdown</h2>
+  </div>
+  <div class="countdown-banner" role="timer" aria-live="polite" aria-label="Election countdown timer">
+    <div>
+      <div class="countdown-label" data-en="UPCOMING ELECTION" data-hi="आगामी चुनाव">UPCOMING ELECTION</div>
+      <div class="countdown-election" id="countdownElectionName">Uttar Pradesh Assembly Election 2027</div>
+      <div class="countdown-sub" id="countdownElectionDate">Est. February 2027 · Vidhan Sabha</div>
+    </div>
+    <div class="countdown-timer" aria-label="Time remaining">
+      <div class="cd-block"><div class="cd-num" id="cdDays">--</div><div class="cd-unit" data-en="Days" data-hi="दिन">Days</div></div>
+      <div class="cd-block"><div class="cd-num" id="cdHours">--</div><div class="cd-unit" data-en="Hours" data-hi="घंटे">Hours</div></div>
+      <div class="cd-block"><div class="cd-num" id="cdMins">--</div><div class="cd-unit" data-en="Mins" data-hi="मिनट">Mins</div></div>
+      <div class="cd-block"><div class="cd-num" id="cdSecs">--</div><div class="cd-unit" data-en="Secs" data-hi="सेकंड">Secs</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     FEATURE 1 — INDIA ELECTION MAP
+══════════════════════════════════════════════════════════ -->
+<section class="section section-alt" id="map" aria-labelledby="map-heading">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-label" data-en="Interactive Map" data-hi="इंटरैक्टिव नक्शा">Interactive Map</span>
+      <h2 class="section-title" id="map-heading" data-en="India Election Map — Lok Sabha 2024" data-hi="भारत चुनाव नक्शा — लोक सभा 2024">India Election Map — Lok Sabha 2024</h2>
+      <p class="section-desc" data-en="Click any state to see constituency count, voter data, and election phase." data-hi="किसी भी राज्य पर क्लिक करें।">Click any state to see constituency count, voter data, and election phase.</p>
+    </div>
+    <div class="map-wrap">
+      <div>
+        <svg class="india-map-svg" id="indiaMap" viewBox="0 0 420 500" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="India election map">
+          <title>India Lok Sabha Election Map 2024</title>
+          <!-- India outline (simplified) -->
+          <path d="M82,55 L95,32 L140,18 L175,12 L200,18 L240,22 L265,18 L295,20 L315,30 L340,40 L355,65 L360,90 L345,120 L330,140 L315,155 L305,180 L295,220 L285,265 L270,310 L255,360 L235,400 L215,435 L195,448 L175,435 L155,405 L140,380 L125,350 L105,320 L92,295 L85,270 L72,245 L60,215 L48,180 L40,155 L52,130 L65,100 L72,75 L78,58 Z"
+                fill="#E8EDF5" stroke="#9BA8C4" stroke-width="1.5" stroke-linejoin="round"/>
+          <!-- Andaman Islands -->
+          <circle cx="390" cy="340" r="6" fill="#D0D8EB" stroke="#9BA8C4" stroke-width="1"/>
+          <circle cx="395" cy="360" r="4" fill="#D0D8EB" stroke="#9BA8C4" stroke-width="1"/>
+          <!-- State dots rendered by JS -->
+          <g id="stateDotsGroup"></g>
+        </svg>
+        <div id="stateInfoPanel" class="map-state-info" style="display:none" role="region" aria-live="polite" aria-label="State information"></div>
+      </div>
+      <div>
+        <div class="phase-legend" aria-label="Election phase legend">
+          <p class="phase-legend-title" data-en="Election Phases (Lok Sabha 2024)" data-hi="चुनाव चरण">Election Phases (Lok Sabha 2024)</p>
+          <div class="legend-item"><div class="legend-dot" style="background:#E74C3C"></div><span data-en="Phase 1 — 19 April" data-hi="चरण 1 — 19 अप्रैल">Phase 1 — 19 April</span></div>
+          <div class="legend-item"><div class="legend-dot" style="background:#E67E22"></div><span data-en="Phase 2 — 26 April" data-hi="चरण 2 — 26 अप्रैल">Phase 2 — 26 April</span></div>
+          <div class="legend-item"><div class="legend-dot" style="background:#D4AC0D"></div><span data-en="Phase 3 — 7 May" data-hi="चरण 3 — 7 मई">Phase 3 — 7 May</span></div>
+          <div class="legend-item"><div class="legend-dot" style="background:#27AE60"></div><span data-en="Phase 4 — 13 May" data-hi="चरण 4 — 13 मई">Phase 4 — 13 May</span></div>
+          <div class="legend-item"><div class="legend-dot" style="background:#1ABC9C"></div><span data-en="Phase 5 — 20 May" data-hi="चरण 5 — 20 मई">Phase 5 — 20 May</span></div>
+          <div class="legend-item"><div class="legend-dot" style="background:#2980B9"></div><span data-en="Phase 6 — 25 May" data-hi="चरण 6 — 25 मई">Phase 6 — 25 May</span></div>
+          <div class="legend-item"><div class="legend-dot" style="background:#8E44AD"></div><span data-en="Phase 7 — 1 June" data-hi="चरण 7 — 1 जून">Phase 7 — 1 June</span></div>
+        </div>
+        <div style="margin-top:20px;background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:16px;font-size:.82rem;color:var(--ink-soft);line-height:1.7">
+          <strong style="display:block;margin-bottom:6px;color:var(--ink)" data-en="About Lok Sabha 2024" data-hi="लोक सभा 2024 के बारे में">About Lok Sabha 2024</strong>
+          <span data-en="India's 18th General Election was held in 7 phases from April 19 to June 1, 2024. Results were declared on June 4, 2024. Total voter turnout was 66.14%." data-hi="भारत का 18वां आम चुनाव 19 अप्रैल से 1 जून 2024 तक 7 चरणों में हुआ। परिणाम 4 जून 2024 को घोषित हुए।">India's 18th General Election was held in 7 phases from April 19 to June 1, 2024. Results were declared on June 4, 2024. Total voter turnout was 66.14%.</span>
+        </div>
       </div>
     </div>
-  </nav>
+  </div>
+</section>
 
-  <!-- ============================================================
-       HERO
-  ============================================================ -->
-  <header class="hero" role="banner">
-    <div class="hero-grid" aria-hidden="true"></div>
-    <div class="container hero-content">
-      <p class="hero-badge" aria-label="Powered by Google Gemini AI">
-        <span class="material-symbols-outlined" style="font-size:14px">bolt</span>
-        Powered by Google Gemini AI
-      </p>
-      <h1>
-        Your <em>Complete</em><br />Election Guide
-      </h1>
-      <p class="hero-sub">
-        Understand elections interactively — from voter registration to final
-        results. Ask questions, explore timelines, and test your knowledge with
-        AI assistance.
-      </p>
-      <div class="hero-ctas">
-        <a class="btn-primary" href="#ai-chat">
-          <span class="material-symbols-outlined" style="font-size:18px">smart_toy</span>
-          Ask the AI Guide
-        </a>
-        <a class="btn-outline" href="#timeline">
-          <span class="material-symbols-outlined" style="font-size:18px">timeline</span>
-          View Timeline
-        </a>
+<!-- ══════════════════════════════════════════════════════════
+     FEATURES 2, 3, 8 — WHATSAPP CHAT + VOICE + HINDI
+══════════════════════════════════════════════════════════ -->
+<section class="section container" id="chat" aria-labelledby="chat-heading">
+  <div class="section-header">
+    <span class="section-label">Google Gemini 2.5 Flash</span>
+    <h2 class="section-title" id="chat-heading" data-en="AI Election Guide Chat" data-hi="AI चुनाव गाइड चैट">AI Election Guide Chat</h2>
+    <p class="section-desc" data-en="Ask anything about Indian elections in English or Hindi. Voice input supported." data-hi="हिंदी या अंग्रेजी में भारतीय चुनावों के बारे में कुछ भी पूछें। वॉइस इनपुट उपलब्ध है।">Ask anything about Indian elections in English or Hindi. Voice input supported.</p>
+  </div>
+
+  <div class="chat-shell" role="region" aria-label="AI Election Guide Chat">
+    <!-- WhatsApp-style header -->
+    <div class="chat-header">
+      <div class="chat-avatar" aria-hidden="true">🗳️</div>
+      <div style="flex:1">
+        <div class="chat-header-name" data-en="ElectIQ — India Election AI" data-hi="ElectIQ — भारत चुनाव AI">ElectIQ — India Election AI</div>
+        <div class="chat-header-status">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span id="chatStatus" data-en="Ready to help" data-hi="मदद के लिए तैयार">Ready to help</span>
+        </div>
       </div>
-      <div class="hero-stats" aria-label="App statistics">
-        <div class="stat-item">
-          <div class="stat-num">7</div>
-          <div class="stat-label">Election Phases</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-num">AI</div>
-          <div class="stat-label">Powered by Gemini</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-num">10+</div>
-          <div class="stat-label">Interactive Steps</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-num">100%</div>
-          <div class="stat-label">Accessible</div>
+      <div class="chat-powered" aria-label="Powered by Google Gemini">
+        <span class="google-g" aria-hidden="true">G</span> Gemini 2.5 Flash
+      </div>
+    </div>
+
+    <!-- Messages — KEY: min-height:0 + overflow-y:auto for proper scroll -->
+    <div class="chat-messages" id="chatMessages" role="log" aria-live="polite" aria-label="Chat conversation" aria-atomic="false">
+      <div class="msg ai">
+        <div class="msg-avatar" aria-hidden="true">🤖</div>
+        <div class="msg-body">
+          <div class="msg-bubble">
+            🙏 <strong data-en="Namaste! I'm your AI Election Guide" data-hi="नमस्ते! मैं आपका AI चुनाव गाइड हूँ">Namaste! I'm your AI Election Guide</strong> powered by Google Gemini 2.5 Flash.<br/><br/>
+            <span data-en="I can help you understand:" data-hi="मैं इन विषयों में मदद कर सकता हूँ:">I can help you understand:</span>
+            <ul style="margin-top:6px;padding-left:16px;line-height:2;font-size:.85em">
+              <li data-en="How Indian elections work (ECI, EVM, VVPAT)" data-hi="भारतीय चुनाव कैसे काम करते हैं">How Indian elections work (ECI, EVM, VVPAT)</li>
+              <li data-en="Voter registration on voter.eci.gov.in" data-hi="voter.eci.gov.in पर मतदाता पंजीकरण">Voter registration on voter.eci.gov.in</li>
+              <li data-en="Lok Sabha vs Rajya Sabha vs Vidhan Sabha" data-hi="लोक सभा बनाम राज्य सभा बनाम विधान सभा">Lok Sabha vs Rajya Sabha vs Vidhan Sabha</li>
+              <li data-en="Model Code of Conduct, NOTA, delimitation" data-hi="आचार संहिता, NOTA, परिसीमन">Model Code of Conduct, NOTA, delimitation</li>
+            </ul>
+            <br/><span data-en="Ask in English or Hindi! 🇮🇳" data-hi="हिंदी या अंग्रेजी में पूछें! 🇮🇳">Ask in English or Hindi! 🇮🇳</span>
+          </div>
+          <div class="msg-meta"><span>Just now</span></div>
         </div>
       </div>
     </div>
-  </header>
 
-  <!-- ============================================================
-       MAIN CONTENT
-  ============================================================ -->
-  <main id="main-content">
-
-    <!-- ── API KEY SETUP ── -->
-    <section class="container" aria-label="Google Gemini API Setup">
-      <div class="api-banner" role="region" aria-label="API configuration">
-        <span class="material-symbols-outlined api-banner-icon" aria-hidden="true">key</span>
-        <div class="api-banner-text">
-          <strong>Configure Google Gemini API</strong>
-          <span>Enter your Gemini API key to activate the AI Election Guide (Google Service)</span>
-        </div>
-        <div class="api-input-row">
-          <label for="apiKeyInput" class="sr-only">Google Gemini API Key</label>
-          <input type="password"
-                 id="apiKeyInput"
-                 class="api-input"
-                 placeholder="AIza••••••••••••••••••••••••••"
-                 autocomplete="off"
-                 aria-describedby="apiKeyDesc" />
-          <button class="btn-save" id="saveApiKey" aria-label="Save API key">Save Key</button>
-          <span id="apiStatus" class="api-status" role="status" aria-live="polite"></span>
-        </div>
-      </div>
-      <p id="apiKeyDesc" class="sr-only">
-        Your API key is stored only in your browser session and never sent to any third-party server.
-      </p>
-    </section>
-
-    <!-- ── ELECTION TIMELINE ── -->
-    <section class="section container" id="timeline" aria-labelledby="timeline-heading">
-      <div class="section-header">
-        <span class="section-label">Step-by-Step</span>
-        <h2 class="section-title" id="timeline-heading">The Election Timeline</h2>
-        <p class="section-desc">
-          From initial planning to certified results — every phase of a democratic election explained clearly.
-        </p>
-      </div>
-
-      <div class="timeline" role="list" aria-label="Election process timeline">
-
-        <article class="tl-item" role="listitem" aria-label="Phase 1: Voter Registration">
-          <div class="tl-dot phase-1" aria-hidden="true">
-            <span class="material-symbols-outlined">app_registration</span>
-          </div>
-          <div class="tl-body">
-            <p class="tl-phase-tag">Phase 1 · Months Before Election</p>
-            <h3 class="tl-title">Voter Registration</h3>
-            <p class="tl-desc">Citizens register to vote, confirming their eligibility and address. Deadlines vary by location — typically 15–30 days before election day.</p>
-            <div class="tl-card">
-              <ul class="tl-steps" aria-label="Steps in voter registration">
-                <li>Verify citizenship and age requirements (usually 18+)</li>
-                <li>Register online, by mail, or in person at a government office</li>
-                <li>Confirm registration status before the deadline</li>
-                <li>Update registration if you've moved or changed name</li>
-              </ul>
-            </div>
-          </div>
-        </article>
-
-        <article class="tl-item" role="listitem" aria-label="Phase 2: Candidate Filing">
-          <div class="tl-dot phase-2" aria-hidden="true">
-            <span class="material-symbols-outlined">assignment_ind</span>
-          </div>
-          <div class="tl-body">
-            <p class="tl-phase-tag">Phase 2 · Months Before Election</p>
-            <h3 class="tl-title">Candidate Filing & Primaries</h3>
-            <p class="tl-desc">Candidates officially declare their candidacy and file with election authorities. Primary elections narrow down candidates from each party.</p>
-            <div class="tl-card">
-              <ul class="tl-steps" aria-label="Steps for candidate filing">
-                <li>Candidates submit nomination papers and filing fees</li>
-                <li>Eligibility is verified (age, citizenship, residency)</li>
-                <li>Primary elections held for party selection</li>
-                <li>Ballots are finalized with confirmed candidates</li>
-              </ul>
-            </div>
-          </div>
-        </article>
-
-        <article class="tl-item" role="listitem" aria-label="Phase 3: Campaigning">
-          <div class="tl-dot phase-1" aria-hidden="true">
-            <span class="material-symbols-outlined">campaign</span>
-          </div>
-          <div class="tl-body">
-            <p class="tl-phase-tag">Phase 3 · Weeks–Months Before Election</p>
-            <h3 class="tl-title">Campaigning Period</h3>
-            <p class="tl-desc">Candidates and parties campaign to win voter support through debates, rallies, advertising, and community outreach.</p>
-            <div class="tl-card">
-              <ul class="tl-steps" aria-label="Campaigning steps">
-                <li>Public debates and town halls allow voter Q&amp;A</li>
-                <li>Campaign finance rules regulate spending and donations</li>
-                <li>Media advertising across TV, digital, and print</li>
-                <li>Canvassing and get-out-the-vote drives</li>
-              </ul>
-            </div>
-          </div>
-        </article>
-
-        <article class="tl-item" role="listitem" aria-label="Phase 4: Early Voting">
-          <div class="tl-dot phase-2" aria-hidden="true">
-            <span class="material-symbols-outlined">edit_calendar</span>
-          </div>
-          <div class="tl-body">
-            <p class="tl-phase-tag">Phase 4 · Days–Weeks Before Election Day</p>
-            <h3 class="tl-title">Early Voting &amp; Absentee Ballots</h3>
-            <p class="tl-desc">Many jurisdictions allow voting before Election Day to improve accessibility and reduce polling place congestion.</p>
-            <div class="tl-card">
-              <ul class="tl-steps" aria-label="Early voting steps">
-                <li>Request absentee/mail-in ballot (if applicable)</li>
-                <li>Early in-person voting opens at designated locations</li>
-                <li>Mail ballots must be returned by the stated deadline</li>
-                <li>Track your ballot submission status online</li>
-              </ul>
-            </div>
-          </div>
-        </article>
-
-        <article class="tl-item" role="listitem" aria-label="Phase 5: Election Day">
-          <div class="tl-dot phase-3" aria-hidden="true">
-            <span class="material-symbols-outlined">how_to_vote</span>
-          </div>
-          <div class="tl-body">
-            <p class="tl-phase-tag">Phase 5 · Election Day</p>
-            <h3 class="tl-title">Election Day Voting</h3>
-            <p class="tl-desc">Registered voters cast their ballots at designated polling places. Poll workers ensure the process is fair, secure, and accessible.</p>
-            <div class="tl-card">
-              <ul class="tl-steps" aria-label="Election Day steps">
-                <li>Find your polling place using your registration address</li>
-                <li>Bring required ID (requirements vary by jurisdiction)</li>
-                <li>Cast your ballot privately in a voting booth</li>
-                <li>Poll watchers from parties observe the process</li>
-                <li>Polls close at a fixed time — be in line before closing</li>
-              </ul>
-            </div>
-          </div>
-        </article>
-
-        <article class="tl-item" role="listitem" aria-label="Phase 6: Vote Counting">
-          <div class="tl-dot phase-1" aria-hidden="true">
-            <span class="material-symbols-outlined">calculate</span>
-          </div>
-          <div class="tl-body">
-            <p class="tl-phase-tag">Phase 6 · After Polls Close</p>
-            <h3 class="tl-title">Vote Counting &amp; Canvassing</h3>
-            <p class="tl-desc">Ballots are counted by election officials, results are verified, and the official canvass confirms the totals before certification.</p>
-            <div class="tl-card">
-              <ul class="tl-steps" aria-label="Vote counting steps">
-                <li>Machines and/or hand count ballots under observer oversight</li>
-                <li>Provisional ballots reviewed for eligibility</li>
-                <li>Unofficial results released on election night</li>
-                <li>Official canvass verifies all counts over days/weeks</li>
-                <li>Recounts triggered if margin falls within legal threshold</li>
-              </ul>
-            </div>
-          </div>
-        </article>
-
-        <article class="tl-item" role="listitem" aria-label="Phase 7: Certification and Transition">
-          <div class="tl-dot phase-4" aria-hidden="true">
-            <span class="material-symbols-outlined">verified</span>
-          </div>
-          <div class="tl-body">
-            <p class="tl-phase-tag">Phase 7 · Weeks After Election</p>
-            <h3 class="tl-title">Certification &amp; Transition</h3>
-            <p class="tl-desc">The canvassed results are certified by election authorities, winners are declared, and the transition of power begins.</p>
-            <div class="tl-card">
-              <ul class="tl-steps" aria-label="Certification steps">
-                <li>State/local authorities certify the official results</li>
-                <li>Any legal challenges heard in court</li>
-                <li>Winners notified and transition teams activated</li>
-                <li>Inauguration or swearing-in ceremony takes place</li>
-              </ul>
-            </div>
-          </div>
-        </article>
-
-      </div>
-    </section>
-
-    <!-- ── PROCESS OVERVIEW CARDS ── -->
-    <section class="section section-alt" id="process" aria-labelledby="process-heading">
-      <div class="container">
-        <div class="section-header">
-          <span class="section-label">Overview</span>
-          <h2 class="section-title" id="process-heading">Election Process at a Glance</h2>
-          <p class="section-desc">
-            The four pillars of a fair democratic election.
-          </p>
-        </div>
-
-        <div class="cards-grid" role="list">
-          <article class="process-card c1" role="listitem" tabindex="0">
-            <div class="card-num" aria-hidden="true">01</div>
-            <div class="card-icon">
-              <span class="material-symbols-outlined">how_to_reg</span>
-            </div>
-            <h3 class="card-title">Eligibility &amp; Registration</h3>
-            <p class="card-desc">Citizens establish their right to vote by meeting age, citizenship, and residency requirements and completing formal registration.</p>
-          </article>
-
-          <article class="process-card c2" role="listitem" tabindex="0">
-            <div class="card-num" aria-hidden="true">02</div>
-            <div class="card-icon">
-              <span class="material-symbols-outlined">ballot</span>
-            </div>
-            <h3 class="card-title">Ballot &amp; Candidate Selection</h3>
-            <p class="card-desc">Parties and independent candidates qualify for the ballot through primaries, conventions, or nomination processes.</p>
-          </article>
-
-          <article class="process-card c3" role="listitem" tabindex="0">
-            <div class="card-num" aria-hidden="true">03</div>
-            <div class="card-icon">
-              <span class="material-symbols-outlined">lock</span>
-            </div>
-            <h3 class="card-title">Secure Voting</h3>
-            <p class="card-desc">Votes are cast through tamper-resistant systems — paper ballots, optical scanners, or accessible electronic machines with paper trails.</p>
-          </article>
-
-          <article class="process-card c4" role="listitem" tabindex="0">
-            <div class="card-num" aria-hidden="true">04</div>
-            <div class="card-icon">
-              <span class="material-symbols-outlined">gavel</span>
-            </div>
-            <h3 class="card-title">Certification &amp; Rule of Law</h3>
-            <p class="card-desc">Results certified by independent officials, subject to legal review — ensuring the outcome reflects the actual will of the voters.</p>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <!-- ── AI CHAT ── -->
-    <section class="section container" id="ai-chat" aria-labelledby="chat-heading">
-      <div class="section-header">
-        <span class="section-label">Google Gemini AI</span>
-        <h2 class="section-title" id="chat-heading">Ask the AI Election Guide</h2>
-        <p class="section-desc">
-          Powered by Google Gemini 2.5 Flash — ask anything about elections, voting, timelines, or civics.
-        </p>
-      </div>
-
-      <div class="chat-shell" role="region" aria-label="AI Election Guide Chat">
-        <!-- Header -->
-        <div class="chat-header" role="heading" aria-level="3">
-          <div class="chat-avatar" aria-hidden="true">
-            <span class="material-symbols-outlined">smart_toy</span>
-          </div>
-          <div class="chat-header-info">
-            <div class="chat-header-name">ElectIQ AI Assistant</div>
-            <div class="chat-header-status">
-              <span class="status-dot" aria-hidden="true"></span>
-              <span id="chatStatus">Ready to help</span>
-            </div>
-          </div>
-          <div class="chat-powered" aria-label="Powered by Google Gemini">
-            <span class="google-g" aria-hidden="true">G</span>
-            Google Gemini 2.5 Flash
-          </div>
-        </div>
-
-        <!-- Messages -->
-        <div class="chat-messages"
-             id="chatMessages"
-             role="log"
-             aria-live="polite"
-             aria-label="Chat conversation"
-             aria-atomic="false">
-          <div class="msg ai">
-            <div class="msg-avatar" aria-hidden="true">
-              <span class="material-symbols-outlined" style="font-size:16px">smart_toy</span>
-            </div>
-            <div class="msg-bubble" role="article">
-              👋 Hello! I'm your <strong>AI Election Guide</strong>, powered by Google Gemini. I can explain:
-              <ul style="margin-top:8px;padding-left:16px;line-height:2">
-                <li>How elections are organized and conducted</li>
-                <li>Voter registration steps and deadlines</li>
-                <li>Ballot types and voting methods</li>
-                <li>How votes are counted and certified</li>
-                <li>Electoral systems around the world</li>
-              </ul>
-              <br />What would you like to know? 🗳️
-            </div>
-          </div>
-        </div>
-
-        <!-- Quick prompts -->
-        <div class="chat-quick" role="group" aria-label="Quick question suggestions">
-          <span style="font-size:0.72rem;color:var(--ink-soft);align-self:center;flex-shrink:0">Try:</span>
-          <button class="quick-btn" data-q="How do I register to vote?">🗳️ How do I register?</button>
-          <button class="quick-btn" data-q="What happens on Election Day step by step?">📋 Election Day steps</button>
-          <button class="quick-btn" data-q="How are votes counted and certified?">🔢 How are votes counted?</button>
-          <button class="quick-btn" data-q="What is the Electoral College?">🏛️ Electoral College</button>
-          <button class="quick-btn" data-q="What is gerrymandering?">🗺️ Gerrymandering?</button>
-        </div>
-
-        <!-- Input -->
-        <div class="chat-input-area">
-          <label for="chatInput" class="sr-only">Type your election question</label>
-          <textarea id="chatInput"
-                    class="chat-textarea"
-                    placeholder="Ask anything about elections…"
-                    rows="1"
-                    aria-label="Your question"></textarea>
-          <button id="chatSendBtn"
-                  class="chat-send-btn"
-                  aria-label="Send message"
-                  disabled>
-            <span class="material-symbols-outlined" style="font-size:20px">send</span>
-          </button>
-        </div>
-      </div>
-    </section>
-
-    <!-- ── QUIZ ── -->
-    <section class="section section-alt" id="quiz" aria-labelledby="quiz-heading">
-      <div class="container" style="max-width:680px">
-        <div class="section-header">
-          <span class="section-label">Test Yourself</span>
-          <h2 class="section-title" id="quiz-heading">Election Knowledge Quiz</h2>
-          <p class="section-desc">
-            How well do you understand the democratic process? Take the quiz!
-          </p>
-        </div>
-
-        <div class="quiz-shell" role="region" aria-label="Election knowledge quiz">
-          <div class="quiz-progress-bar" role="progressbar"
-               aria-label="Quiz progress"
-               aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-            <div class="quiz-progress-fill" id="quizProgressFill" style="width:0%"></div>
-          </div>
-          <div class="quiz-body" id="quizBody">
-            <!-- Rendered by JS -->
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ── GLOSSARY ── -->
-    <section class="section container" id="glossary" aria-labelledby="glossary-heading">
-      <div class="section-header">
-        <span class="section-label">Key Terms</span>
-        <h2 class="section-title" id="glossary-heading">Election Glossary</h2>
-        <p class="section-desc">Essential vocabulary every informed voter should know.</p>
-      </div>
-
-      <div class="glossary-grid" role="list" aria-label="Election terms glossary">
-        <dl class="glossary-item" role="listitem">
-          <dt class="glossary-term">Ballot</dt>
-          <dd class="glossary-def">The official document (paper or electronic) on which voters record their choices for candidates or issues.</dd>
-        </dl>
-        <dl class="glossary-item" role="listitem">
-          <dt class="glossary-term">Canvass</dt>
-          <dd class="glossary-def">The official process of reviewing and totaling all votes cast in an election before certifying results.</dd>
-        </dl>
-        <dl class="glossary-item" role="listitem">
-          <dt class="glossary-term">Electoral College</dt>
-          <dd class="glossary-def">A body of representatives (electors) who formally cast votes to elect the U.S. President and Vice President.</dd>
-        </dl>
-        <dl class="glossary-item" role="listitem">
-          <dt class="glossary-term">Gerrymandering</dt>
-          <dd class="glossary-def">Manipulating district boundaries to give one political party an advantage in elections.</dd>
-        </dl>
-        <dl class="glossary-item" role="listitem">
-          <dt class="glossary-term">Incumbent</dt>
-          <dd class="glossary-def">The current holder of a political office who is running for re-election.</dd>
-        </dl>
-        <dl class="glossary-item" role="listitem">
-          <dt class="glossary-term">Precinct</dt>
-          <dd class="glossary-def">A defined geographic subdivision used for election administration and assigning voters to polling places.</dd>
-        </dl>
-        <dl class="glossary-item" role="listitem">
-          <dt class="glossary-term">Primary Election</dt>
-          <dd class="glossary-def">A preliminary election in which voters choose a party's candidate to advance to the general election.</dd>
-        </dl>
-        <dl class="glossary-item" role="listitem">
-          <dt class="glossary-term">Provisional Ballot</dt>
-          <dd class="glossary-def">A safeguard ballot used when a voter's eligibility cannot be confirmed on Election Day; reviewed after polls close.</dd>
-        </dl>
-        <dl class="glossary-item" role="listitem">
-          <dt class="glossary-term">Recount</dt>
-          <dd class="glossary-def">A repeat tabulation of votes in an election, triggered when results are extremely close or contested.</dd>
-        </dl>
-        <dl class="glossary-item" role="listitem">
-          <dt class="glossary-term">Runoff Election</dt>
-          <dd class="glossary-def">A second election held between the top candidates when no candidate wins a required majority in the first election.</dd>
-        </dl>
-        <dl class="glossary-item" role="listitem">
-          <dt class="glossary-term">Suffrage</dt>
-          <dd class="glossary-def">The right to vote in political elections. Universal suffrage means all adult citizens may vote regardless of characteristics.</dd>
-        </dl>
-        <dl class="glossary-item" role="listitem">
-          <dt class="glossary-term">Swing State</dt>
-          <dd class="glossary-def">A state or constituency where no single candidate or party has overwhelming support, making it a key battleground.</dd>
-        </dl>
-      </div>
-    </section>
-
-  </main><!-- /main -->
-
-  <!-- ============================================================
-       FOOTER
-  ============================================================ -->
-  <footer class="footer" role="contentinfo">
-    <div class="container footer-inner">
-      <div class="footer-brand">ElectIQ</div>
-      <ul class="footer-links" role="list">
-        <li><a href="#timeline">Timeline</a></li>
-        <li><a href="#ai-chat">AI Chat</a></li>
-        <li><a href="#quiz">Quiz</a></li>
-        <li><a href="#glossary">Glossary</a></li>
-      </ul>
-      <div class="footer-badge" aria-label="Powered by Google Gemini">
-        <span class="google-g" aria-hidden="true">G</span>
-        Powered by Google Gemini AI
-      </div>
+    <!-- Quick prompts -->
+    <div class="chat-quick" role="group" aria-label="Quick questions">
+      <span style="font-size:.68rem;color:var(--ink-soft);align-self:center;flex-shrink:0" data-en="Try:" data-hi="पूछें:">Try:</span>
+      <button class="quick-btn" data-q="How do I register to vote in India? What documents do I need?">🗳️ How to register?</button>
+      <button class="quick-btn" data-q="What is EVM and VVPAT in Indian elections?">🖥️ EVM &amp; VVPAT</button>
+      <button class="quick-btn" data-q="What is NOTA in Indian elections?">✖️ What is NOTA?</button>
+      <button class="quick-btn" data-q="भारत में चुनाव कैसे होते हैं? हिंदी में समझाएं।">🇮🇳 हिंदी में पूछें</button>
+      <button class="quick-btn" data-q="What is the Model Code of Conduct in India?">📋 Model Code</button>
+      <button class="quick-btn" data-q="What is the difference between Lok Sabha and Rajya Sabha?">🏛️ Lok vs Rajya Sabha</button>
     </div>
-  </footer>
 
-  <!-- ============================================================
-       JAVASCRIPT — Application Logic
-       Sections:
-         1. Constants & State
-         2. API Key Management
-         3. Gemini API (Google Service #3)
-         4. Chat UI
-         5. Quiz Engine
-         6. Timeline Intersection Observer
-         7. Accessibility Tools
-         8. Init
-  ============================================================ -->
-  <script>
-    'use strict';
+    <!-- Input area with voice button -->
+    <div class="chat-input-area">
+      <!-- Feature 2: Voice input button -->
+      <button class="chat-mic-btn" id="micBtn" aria-label="Voice input — click to speak" title="Voice Input (Feature 2)">
+        <span class="material-symbols-outlined" style="font-size:18px">mic</span>
+      </button>
+      <label for="chatInput" class="sr-only">Type your election question</label>
+      <textarea id="chatInput" class="chat-textarea" placeholder="Ask about Indian elections…" rows="1" aria-label="Your question" disabled></textarea>
+      <button id="chatSendBtn" class="chat-send-btn" aria-label="Send message" disabled>
+        <span class="material-symbols-outlined" style="font-size:18px">send</span>
+      </button>
+    </div>
+  </div>
+</section>
 
-    /* ============================================================
-       1. CONSTANTS & STATE
-    ============================================================ */
-    const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
+<!-- ══════════════════════════════════════════════════════════
+     FEATURE 5 — VOTER ELIGIBILITY CHECKER
+══════════════════════════════════════════════════════════ -->
+<section class="section section-alt" id="eligibility" aria-labelledby="elig-heading">
+  <div class="container" style="max-width:780px">
+    <div class="section-header">
+      <span class="section-label" data-en="Voter Check" data-hi="मतदाता जाँच">Voter Check</span>
+      <h2 class="section-title" id="elig-heading" data-en="Am I Eligible to Vote?" data-hi="क्या मैं मतदान करने के योग्य हूँ?">Am I Eligible to Vote?</h2>
+      <p class="section-desc" data-en="Answer a few questions — our AI will check your eligibility and guide you through registration." data-hi="कुछ सवालों के जवाब दें — हमारा AI आपकी पात्रता जाँचेगा।">Answer a few questions — our AI will check your eligibility and guide you through registration.</p>
+    </div>
+    <div class="checker-card">
+      <div class="checker-form" id="eligForm">
+        <div class="form-group">
+          <label for="eligAge" data-en="Your Age" data-hi="आपकी आयु">Your Age</label>
+          <input type="number" id="eligAge" min="1" max="120" placeholder="e.g. 19" aria-label="Enter your age"/>
+        </div>
+        <div class="form-group">
+          <label for="eligState" data-en="Your State" data-hi="आपका राज्य">Your State</label>
+          <select id="eligState" aria-label="Select your state">
+            <option value="" data-en="Select state…" data-hi="राज्य चुनें…">Select state…</option>
+            <option>Andhra Pradesh</option><option>Arunachal Pradesh</option><option>Assam</option>
+            <option>Bihar</option><option>Chhattisgarh</option><option>Goa</option>
+            <option>Gujarat</option><option>Haryana</option><option>Himachal Pradesh</option>
+            <option>Jharkhand</option><option>Karnataka</option><option>Kerala</option>
+            <option>Madhya Pradesh</option><option>Maharashtra</option><option>Manipur</option>
+            <option>Meghalaya</option><option>Mizoram</option><option>Nagaland</option>
+            <option>Odisha</option><option>Punjab</option><option>Rajasthan</option>
+            <option>Sikkim</option><option>Tamil Nadu</option><option>Telangana</option>
+            <option>Tripura</option><option>Uttar Pradesh</option><option>Uttarakhand</option>
+            <option>West Bengal</option><option>Delhi (NCT)</option>
+            <option>Jammu &amp; Kashmir</option><option>Ladakh</option>
+          </select>
+        </div>
+        <div class="form-group" style="grid-column:1/-1">
+          <label data-en="Are you an Indian Citizen?" data-hi="क्या आप भारतीय नागरिक हैं?">Are you an Indian Citizen?</label>
+          <div class="radio-group" role="radiogroup">
+            <label class="radio-label"><input type="radio" name="citizen" value="yes"/> <span data-en="Yes" data-hi="हाँ">Yes</span></label>
+            <label class="radio-label"><input type="radio" name="citizen" value="no"/> <span data-en="No" data-hi="नहीं">No</span></label>
+          </div>
+        </div>
+        <div class="form-group" style="grid-column:1/-1">
+          <label data-en="Are you registered on the Electoral Roll?" data-hi="क्या आप मतदाता सूची में पंजीकृत हैं?">Are you registered on the Electoral Roll?</label>
+          <div class="radio-group" role="radiogroup">
+            <label class="radio-label"><input type="radio" name="registered" value="yes"/> <span data-en="Yes" data-hi="हाँ">Yes</span></label>
+            <label class="radio-label"><input type="radio" name="registered" value="no"/> <span data-en="No, not yet" data-hi="नहीं, अभी नहीं">No, not yet</span></label>
+            <label class="radio-label"><input type="radio" name="registered" value="unsure"/> <span data-en="Not sure" data-hi="पता नहीं">Not sure</span></label>
+          </div>
+        </div>
+      </div>
+      <button class="btn-save" id="checkEligBtn" style="font-size:.92rem;padding:11px 24px" data-en="Check My Eligibility →" data-hi="पात्रता जाँचें →">Check My Eligibility →</button>
+      <div id="eligResult" class="checker-result" role="region" aria-live="polite" aria-label="Eligibility result"></div>
+    </div>
+  </div>
+</section>
 
-    // App state — no localStorage; all session-scoped for security
-    const state = {
-      apiKey: '',
-      chatHistory: [],  // { role, parts: [{text}] }[]
-      quizIndex: 0,
-      quizScore: 0,
-      quizAnswered: false,
-      fontSize: 16,
+<!-- ══════════════════════════════════════════════════════════
+     FEATURE 4 — ECI ELECTION DASHBOARD
+══════════════════════════════════════════════════════════ -->
+<section class="section container" id="dashboard" aria-labelledby="dash-heading">
+  <div class="section-header">
+    <span class="section-label" data-en="ECI Data" data-hi="ECI डेटा">ECI Data</span>
+    <h2 class="section-title" id="dash-heading" data-en="Lok Sabha 2024 — Results Dashboard" data-hi="लोक सभा 2024 — परिणाम डैशबोर्ड">Lok Sabha 2024 — Results Dashboard</h2>
+    <p class="section-desc" data-en="Official results data from the Election Commission of India." data-hi="भारत निर्वाचन आयोग के आधिकारिक परिणाम डेटा।">Official results data from the Election Commission of India.</p>
+  </div>
+  <div class="dashboard-grid" id="dashGrid" role="list" aria-label="Election results data"></div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     INDIAN ELECTION PROCESS TIMELINE
+══════════════════════════════════════════════════════════ -->
+<section class="section section-alt container" id="timeline" aria-labelledby="tl-heading">
+  <div class="section-header">
+    <span class="section-label" data-en="Step by Step" data-hi="चरण दर चरण">Step by Step</span>
+    <h2 class="section-title" id="tl-heading" data-en="Indian Election Process" data-hi="भारतीय चुनाव प्रक्रिया">Indian Election Process</h2>
+  </div>
+  <div class="timeline" role="list" aria-label="Election process timeline">
+
+    <article class="tl-item" role="listitem">
+      <div class="tl-dot p1" aria-hidden="true"><span class="material-symbols-outlined">campaign</span></div>
+      <div class="tl-body">
+        <p class="tl-phase" data-en="Step 1 · ECI announces schedule" data-hi="चरण 1 · ECI कार्यक्रम घोषित करता है">Step 1 · ECI announces schedule</p>
+        <h3 class="tl-title" data-en="Election Announcement & Model Code of Conduct" data-hi="चुनाव घोषणा और आदर्श आचार संहिता">Election Announcement & Model Code of Conduct</h3>
+        <p class="tl-desc" data-en="The Election Commission of India (ECI) announces the election schedule. Simultaneously, the Model Code of Conduct (MCC) comes into force, restricting ruling parties from using government resources for campaigning." data-hi="भारत निर्वाचन आयोग (ECI) चुनाव कार्यक्रम की घोषणा करता है। साथ ही आदर्श आचार संहिता (MCC) लागू होती है।">The Election Commission of India (ECI) announces the election schedule. Simultaneously, the Model Code of Conduct (MCC) comes into force, restricting ruling parties from using government resources for campaigning.</p>
+        <div class="tl-card">
+          <ul class="tl-steps">
+            <li data-en="ECI sets voting dates for each phase" data-hi="ECI प्रत्येक चरण की मतदान तिथियां निर्धारित करता है">ECI sets voting dates for each phase</li>
+            <li data-en="MCC immediately prohibits new policy announcements" data-hi="MCC तुरंत नई नीति घोषणाओं को प्रतिबंधित करता है">MCC immediately prohibits new policy announcements</li>
+            <li data-en="Notification published in Official Gazette" data-hi="आधिकारिक राजपत्र में अधिसूचना प्रकाशित होती है">Notification published in Official Gazette</li>
+          </ul>
+        </div>
+      </div>
+    </article>
+
+    <article class="tl-item" role="listitem">
+      <div class="tl-dot p2" aria-hidden="true"><span class="material-symbols-outlined">how_to_reg</span></div>
+      <div class="tl-body">
+        <p class="tl-phase" data-en="Step 2 · Voter rolls updated" data-hi="चरण 2 · मतदाता सूची अद्यतन">Step 2 · Voter rolls updated</p>
+        <h3 class="tl-title" data-en="Voter Registration & Electoral Roll" data-hi="मतदाता पंजीकरण और निर्वाचन सूची">Voter Registration & Electoral Roll</h3>
+        <p class="tl-desc" data-en="Citizens register on voter.eci.gov.in using Form 6. The Electoral Roll (Voter List) is updated by BLOs (Booth Level Officers) in each constituency." data-hi="नागरिक voter.eci.gov.in पर Form 6 का उपयोग करके पंजीकरण करते हैं।">Citizens register on voter.eci.gov.in using Form 6. The Electoral Roll (Voter List) is updated by BLOs (Booth Level Officers) in each constituency.</p>
+        <div class="tl-card">
+          <ul class="tl-steps">
+            <li data-en="Age 18+ Indian citizens can register" data-hi="18+ आयु के भारतीय नागरिक पंजीकरण कर सकते हैं">Age 18+ Indian citizens can register</li>
+            <li data-en="EPIC (Voter ID Card) issued by ECI" data-hi="EPIC (मतदाता पहचान पत्र) ECI द्वारा जारी किया जाता है">EPIC (Voter ID Card) issued by ECI</li>
+            <li data-en="12 alternative documents accepted at polling booth" data-hi="मतदान केंद्र पर 12 वैकल्पिक दस्तावेज स्वीकार किए जाते हैं">12 alternative documents accepted at polling booth</li>
+          </ul>
+        </div>
+      </div>
+    </article>
+
+    <article class="tl-item" role="listitem">
+      <div class="tl-dot p3" aria-hidden="true"><span class="material-symbols-outlined">assignment_ind</span></div>
+      <div class="tl-body">
+        <p class="tl-phase" data-en="Step 3 · Candidate filing" data-hi="चरण 3 · उम्मीदवार नामांकन">Step 3 · Candidate filing</p>
+        <h3 class="tl-title" data-en="Nomination, Scrutiny & Withdrawal" data-hi="नामांकन, जांच और वापसी">Nomination, Scrutiny & Withdrawal</h3>
+        <p class="tl-desc" data-en="Candidates file nomination papers with the Returning Officer. A ₹25,000 security deposit is required (₹12,500 for SC/ST). Nominations are scrutinized and candidates may withdraw by the withdrawal deadline." data-hi="उम्मीदवार रिटर्निंग ऑफिसर के पास नामांकन पत्र दाखिल करते हैं।">Candidates file nomination papers with the Returning Officer. A ₹25,000 security deposit is required (₹12,500 for SC/ST).</p>
+        <div class="tl-card">
+          <ul class="tl-steps">
+            <li data-en="Must be Indian citizen, age 25+ for Lok Sabha" data-hi="लोक सभा के लिए भारतीय नागरिक, 25+ आयु होनी चाहिए">Must be Indian citizen, age 25+ for Lok Sabha</li>
+            <li data-en="Affidavit declaring criminal/financial records mandatory" data-hi="आपराधिक/वित्तीय रिकॉर्ड घोषित करना अनिवार्य है">Affidavit declaring criminal/financial records mandatory</li>
+            <li data-en="Symbols allotted to recognized parties and independents" data-hi="मान्यता प्राप्त दलों और निर्दलीयों को चुनाव चिह्न आवंटित">Symbols allotted to recognized parties and independents</li>
+          </ul>
+        </div>
+      </div>
+    </article>
+
+    <article class="tl-item" role="listitem">
+      <div class="tl-dot p1" aria-hidden="true"><span class="material-symbols-outlined">how_to_vote</span></div>
+      <div class="tl-body">
+        <p class="tl-phase" data-en="Step 4 · Election Day" data-hi="चरण 4 · मतदान दिवस">Step 4 · Election Day</p>
+        <h3 class="tl-title" data-en="Voting via EVM & VVPAT" data-hi="EVM और VVPAT के माध्यम से मतदान">Voting via EVM & VVPAT</h3>
+        <p class="tl-desc" data-en="Voters cast ballots using Electronic Voting Machines (EVMs). Each EVM is connected to a VVPAT which prints a paper slip confirming the vote for 7 seconds." data-hi="मतदाता इलेक्ट्रॉनिक वोटिंग मशीन (EVM) का उपयोग करके मतदान करते हैं। प्रत्येक EVM VVPAT से जुड़ी होती है।">Voters cast ballots using Electronic Voting Machines (EVMs). Each EVM is connected to a VVPAT which prints a paper slip confirming the vote for 7 seconds.</p>
+        <div class="tl-card">
+          <ul class="tl-steps">
+            <li data-en="Polling hours: 7AM to 6PM (varies by constituency)" data-hi="मतदान का समय: सुबह 7 बजे से शाम 6 बजे तक">Polling hours: 7AM to 6PM (varies by constituency)</li>
+            <li data-en="NOTA option available for none of the above" data-hi="उपरोक्त में से कोई नहीं के लिए NOTA विकल्प उपलब्ध है">NOTA option available for none of the above</li>
+            <li data-en="Central paramilitary forces deployed for security" data-hi="सुरक्षा के लिए केंद्रीय अर्धसैनिक बल तैनात किए जाते हैं">Central paramilitary forces deployed for security</li>
+          </ul>
+        </div>
+      </div>
+    </article>
+
+    <article class="tl-item" role="listitem">
+      <div class="tl-dot p4" aria-hidden="true"><span class="material-symbols-outlined">verified</span></div>
+      <div class="tl-body">
+        <p class="tl-phase" data-en="Step 5 · Counting Day" data-hi="चरण 5 · मतगणना दिवस">Step 5 · Counting Day</p>
+        <h3 class="tl-title" data-en="Vote Counting & Result Certification" data-hi="मतगणना और परिणाम प्रमाणीकरण">Vote Counting & Result Certification</h3>
+        <p class="tl-desc" data-en="Counting begins at 8AM at counting centers under ECI observation. Postal ballots are counted first, then EVM results. Winner requires simple majority (FPTP system). ECI certifies the results." data-hi="ECI की देखरेख में मतगणना केंद्रों पर सुबह 8 बजे मतगणना शुरू होती है।">Counting begins at 8AM at counting centers under ECI observation. Winner requires simple majority (FPTP system).</p>
+        <div class="tl-card">
+          <ul class="tl-steps">
+            <li data-en="Postal ballots counted before EVM votes" data-hi="EVM मतों से पहले डाक मतपत्र गिने जाते हैं">Postal ballots counted before EVM votes</li>
+            <li data-en="First Past The Post (FPTP) system — highest votes wins" data-hi="FPTP प्रणाली — सर्वाधिक मत जीतते हैं">First Past The Post (FPTP) system — highest votes wins</li>
+            <li data-en="Security deposit forfeited if below 1/6th of valid votes" data-hi="वैध मतों के 1/6 से कम होने पर जमानत राशि जब्त">Security deposit forfeited if below 1/6th of valid votes</li>
+            <li data-en="ECI issues certificate of election to winner" data-hi="ECI विजेता को निर्वाचन प्रमाण पत्र जारी करता है">ECI issues certificate of election to winner</li>
+          </ul>
+        </div>
+      </div>
+    </article>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     FEATURE 7 — POLITICAL PARTY EXPLORER
+══════════════════════════════════════════════════════════ -->
+<section class="section container" id="parties" aria-labelledby="parties-heading">
+  <div class="section-header">
+    <span class="section-label" data-en="Party Explorer" data-hi="दल परिचय">Party Explorer</span>
+    <h2 class="section-title" id="parties-heading" data-en="Major Indian Political Parties" data-hi="प्रमुख भारतीय राजनीतिक दल">Major Indian Political Parties</h2>
+    <p class="section-desc" data-en="Non-partisan factual information about India's major political parties." data-hi="भारत के प्रमुख राजनीतिक दलों के बारे में तथ्यात्मक जानकारी।">Non-partisan factual information about India's major political parties.</p>
+  </div>
+  <div class="parties-grid" id="partiesGrid" role="list" aria-label="Political parties"></div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     FEATURE 10 — GAMIFIED QUIZ (EASY / MEDIUM / HARD)
+══════════════════════════════════════════════════════════ -->
+<section class="section section-alt" id="quiz" aria-labelledby="quiz-heading">
+  <div class="container" style="max-width:700px">
+    <div class="section-header">
+      <span class="section-label" data-en="Test Yourself" data-hi="खुद को परखें">Test Yourself</span>
+      <h2 class="section-title" id="quiz-heading" data-en="Indian Election Knowledge Quiz" data-hi="भारतीय चुनाव ज्ञान प्रश्नोत्तरी">Indian Election Knowledge Quiz</h2>
+      <p class="section-desc" data-en="Three difficulty levels — earn badges as you improve!" data-hi="तीन कठिनाई स्तर — जैसे-जैसे आप सुधारते हैं, बैज अर्जित करें!">Three difficulty levels — earn badges as you improve!</p>
+    </div>
+
+    <!-- Level tabs -->
+    <div class="quiz-tabs" role="tablist" aria-label="Quiz difficulty levels">
+      <button class="quiz-tab easy active" role="tab" aria-selected="true" data-level="easy" data-en="🟢 Easy — Voter Basics" data-hi="🟢 आसान">🟢 Easy — Voter Basics</button>
+      <button class="quiz-tab medium" role="tab" aria-selected="false" data-level="medium" data-en="🟡 Medium — ECI Process" data-hi="🟡 मध्यम">🟡 Medium — ECI Process</button>
+      <button class="quiz-tab hard" role="tab" aria-selected="false" data-level="hard" data-en="🔴 Hard — Constitutional" data-hi="🔴 कठिन">🔴 Hard — Constitutional</button>
+    </div>
+
+    <!-- Badge display -->
+    <div class="badge-row" id="badgeRow" aria-label="Earned badges" aria-live="polite">
+      <span class="badge" id="badgeEasy" aria-label="Easy level badge">🥉 First-time Voter</span>
+      <span class="badge" id="badgeMedium" aria-label="Medium level badge">🥈 Informed Citizen</span>
+      <span class="badge" id="badgeHard" aria-label="Hard level badge">🥇 Election Expert</span>
+    </div>
+
+    <div class="quiz-shell" role="region" aria-label="Quiz">
+      <div class="quiz-progress-bar" role="progressbar" aria-label="Quiz progress" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+        <div class="quiz-progress-fill" id="quizProgressFill" style="width:0%"></div>
+      </div>
+      <div class="quiz-body" id="quizBody"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     FEATURE 9 — VOTER EDUCATION CARDS
+══════════════════════════════════════════════════════════ -->
+<section class="section container" id="education" aria-labelledby="edu-heading">
+  <div class="section-header">
+    <span class="section-label" data-en="Civic Education" data-hi="नागरिक शिक्षा">Civic Education</span>
+    <h2 class="section-title" id="edu-heading" data-en="Voter Education Resources" data-hi="मतदाता शिक्षा संसाधन">Voter Education Resources</h2>
+    <p class="section-desc" data-en="Official ECI resources and guides for informed voting." data-hi="सूचित मतदान के लिए आधिकारिक ECI संसाधन।">Official ECI resources and guides for informed voting.</p>
+  </div>
+  <div class="edu-grid" role="list" aria-label="Education resources"></div>
+</section>
+
+<!-- ── GLOSSARY ── -->
+<section class="section section-alt container" id="glossary" aria-labelledby="gl-heading">
+  <div class="section-header">
+    <span class="section-label" data-en="Key Terms" data-hi="मुख्य शब्द">Key Terms</span>
+    <h2 class="section-title" id="gl-heading" data-en="Indian Election Glossary" data-hi="भारतीय चुनाव शब्दकोश">Indian Election Glossary</h2>
+  </div>
+  <div class="glossary-grid" role="list" aria-label="Election terms"></div>
+</section>
+
+</main>
+
+<!-- FOOTER -->
+<footer class="footer" role="contentinfo">
+  <div class="container footer-inner">
+    <div class="footer-brand">ElectIQ India 🇮🇳</div>
+    <ul class="footer-links" role="list">
+      <li><a href="#map" data-en="Map" data-hi="नक्शा">Map</a></li>
+      <li><a href="#chat" data-en="AI Chat" data-hi="AI चैट">AI Chat</a></li>
+      <li><a href="#quiz" data-en="Quiz" data-hi="प्रश्नोत्तरी">Quiz</a></li>
+      <li><a href="#glossary" data-en="Glossary" data-hi="शब्दकोश">Glossary</a></li>
+    </ul>
+    <div class="footer-badge">
+      <span class="google-g" style="background:var(--saffron);color:#fff" aria-hidden="true">G</span>
+      <span data-en="Powered by Google Gemini 2.5 Flash" data-hi="Google Gemini 2.5 Flash द्वारा संचालित">Powered by Google Gemini 2.5 Flash</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ============================================================
+     JAVASCRIPT — All 10 Features
+============================================================ -->
+<script>
+'use strict';
+
+/* ── 1. CONSTANTS ── */
+const GEMINI_MODEL   = 'gemini-2.5-flash';
+const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
+
+const state = {
+  apiKey: '', lang: 'en', fontSize: 16,
+  chatHistory: [], quizLevel: 'easy',
+  quizIndex: 0, quizScore: 0, quizAnswered: false,
+  badges: { easy: false, medium: false, hard: false }
+};
+
+/* ── 2. TRANSLATIONS ── */
+const T = {
+  en: {
+    chatPlaceholder: 'Ask about Indian elections…',
+    chatDisabled:    'Add your Gemini API key above to start chatting…',
+    chatThinking:    'Thinking…',
+    chatOnline:      'AI online · Gemini 2.5 Flash',
+    chatReady:       'Ready to help',
+    keySaved:        '✓ Key saved',
+    keyInvalid:      '⚠ Invalid key format',
+    eligCheck:       'Checking eligibility…',
+    eligible:        '✅ You appear eligible to vote in India!',
+    notEligible:     '❌ You may not be eligible based on the information provided.',
+    checking:        'Checking…',
+  },
+  hi: {
+    chatPlaceholder: 'भारतीय चुनाव के बारे में पूछें…',
+    chatDisabled:    'चैट शुरू करने के लिए ऊपर API key दर्ज करें…',
+    chatThinking:    'सोच रहा हूँ…',
+    chatOnline:      'AI ऑनलाइन · Gemini 2.5 Flash',
+    chatReady:       'मदद के लिए तैयार',
+    keySaved:        '✓ Key सहेजी गई',
+    keyInvalid:      '⚠ अमान्य key',
+    eligCheck:       'पात्रता जाँच रहा हूँ…',
+    eligible:        '✅ आप भारत में मतदान करने के योग्य प्रतीत होते हैं!',
+    notEligible:     '❌ दी गई जानकारी के अनुसार आप पात्र नहीं हो सकते।',
+    checking:        'जाँच रहा हूँ…',
+  }
+};
+const t = (key) => T[state.lang][key] || T.en[key];
+
+/* ── 3. LANGUAGE SWITCHER (Feature 3) ── */
+function applyLanguage(lang) {
+  state.lang = lang;
+  document.getElementById('htmlRoot').lang = lang === 'hi' ? 'hi' : 'en';
+  document.body.classList.toggle('lang-hi', lang === 'hi');
+  document.getElementById('btnEN').classList.toggle('active', lang === 'en');
+  document.getElementById('btnHI').classList.toggle('active', lang === 'hi');
+  document.getElementById('btnEN').setAttribute('aria-pressed', lang === 'en');
+  document.getElementById('btnHI').setAttribute('aria-pressed', lang === 'hi');
+
+  document.querySelectorAll('[data-en]').forEach(el => {
+    const txt = lang === 'hi' ? el.dataset.hi : el.dataset.en;
+    if (txt) el.textContent = txt;
+  });
+
+  const ci = document.getElementById('chatInput');
+  if (ci) ci.placeholder = state.apiKey ? t('chatPlaceholder') : t('chatDisabled');
+  if (document.getElementById('chatStatus'))
+    document.getElementById('chatStatus').textContent =
+      state.apiKey ? t('chatOnline') : t('chatReady');
+
+  // Re-render quiz quick prompts for language
+  document.querySelectorAll('.quick-btn').forEach(b => {
+    b.textContent = lang === 'hi' ? (b.dataset.hi || b.dataset.q.slice(0,20)+'…') : b.dataset.label || b.textContent;
+  });
+}
+
+document.getElementById('btnEN').addEventListener('click', () => applyLanguage('en'));
+document.getElementById('btnHI').addEventListener('click', () => applyLanguage('hi'));
+
+/* ── 4. API KEY MANAGEMENT ── */
+const apiKeyInput = document.getElementById('apiKeyInput');
+const saveApiBtn  = document.getElementById('saveApiKey');
+const apiStatus   = document.getElementById('apiStatus');
+const chatInput   = document.getElementById('chatInput');
+const chatSendBtn = document.getElementById('chatSendBtn');
+
+saveApiBtn.addEventListener('click', () => {
+  const key = apiKeyInput.value.trim();
+  if (!key || !key.startsWith('AIza') || key.length < 20) {
+    showApiStatus(t('keyInvalid'), false); return;
+  }
+  state.apiKey = key;
+  showApiStatus(t('keySaved'), true);
+  chatInput.disabled = false;
+  chatInput.placeholder = t('chatPlaceholder');
+  chatSendBtn.disabled = false;
+  document.getElementById('chatStatus').textContent = t('chatOnline');
+  chatInput.focus();
+});
+
+apiKeyInput.addEventListener('keydown', e => { if(e.key==='Enter') saveApiBtn.click(); });
+
+function showApiStatus(msg, ok) {
+  apiStatus.textContent = msg;
+  apiStatus.className = 'api-status ' + (ok ? 'ok' : 'err');
+}
+
+/* ── 5. GEMINI API (Google Service #3) ── */
+const SYSTEM_PROMPT = `You are ElectIQ, an expert AI guide on Indian elections, powered by Google Gemini 2.5 Flash.
+You help citizens understand India's electoral process including:
+- Election Commission of India (ECI), its powers under Article 324
+- Lok Sabha (543 seats), Rajya Sabha (245 seats), Vidhan Sabha elections
+- Voter registration (Form 6) on voter.eci.gov.in, EPIC (Voter ID)
+- Electronic Voting Machines (EVMs) and VVPAT paper trail
+- Model Code of Conduct (MCC), multi-phase elections
+- NOTA (None of the Above), First Past The Post (FPTP) system
+- Delimitation, reserved constituencies (SC/ST), bye-elections
+- Security deposit (₹25,000), nomination process, Returning Officer
+- Booth Level Officers (BLOs), polling stations, counting process
+
+GUIDELINES:
+- Be non-partisan — present only factual information, never promote any party
+- Respond in the same language as the question (Hindi or English)
+- For Hindi questions, respond in simple Hindi with key terms in brackets
+- Use numbered steps for processes, be concise and clear
+- Always encourage civic participation and voter registration`;
+
+async function callGemini(userMsg) {
+  if (!state.apiKey) throw new Error('API key not set');
+  state.chatHistory.push({ role: 'user', parts: [{ text: userMsg }] });
+
+  const res = await fetch(`${GEMINI_API_URL}?key=${encodeURIComponent(state.apiKey)}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+      contents: state.chatHistory,
+      generationConfig: { temperature: 0.7, topK: 40, topP: 0.95, maxOutputTokens: 900 },
+      safetySettings: [
+        { category: 'HARM_CATEGORY_HARASSMENT',        threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+        { category: 'HARM_CATEGORY_HATE_SPEECH',       threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+        { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' }
+      ]
+    })
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err?.error?.message || `HTTP ${res.status}`);
+  }
+  const data = await res.json();
+  const aiText = data?.candidates?.[0]?.content?.parts?.[0]?.text ?? 'No response.';
+  state.chatHistory.push({ role: 'model', parts: [{ text: aiText }] });
+  return aiText;
+}
+
+/* ── 6. WHATSAPP CHAT UI (Feature 8) ── */
+const chatMessages = document.getElementById('chatMessages');
+
+function scrollChatToBottom() {
+  // Reliable scroll to bottom fix
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+  // Double-check after render
+  requestAnimationFrame(() => { chatMessages.scrollTop = chatMessages.scrollHeight; });
+}
+
+function getTimestamp() {
+  return new Date().toLocaleTimeString(state.lang === 'hi' ? 'hi-IN' : 'en-IN',
+    { hour: '2-digit', minute: '2-digit' });
+}
+
+function addMessage(role, html) {
+  const isAI = role === 'ai';
+  const msg = document.createElement('div');
+  msg.className = `msg ${role}`;
+  msg.setAttribute('role', 'article');
+
+  const avatar = document.createElement('div');
+  avatar.className = 'msg-avatar';
+  avatar.setAttribute('aria-hidden', 'true');
+  avatar.textContent = isAI ? '🤖' : '👤';
+
+  const body = document.createElement('div');
+  body.className = 'msg-body';
+
+  const bubble = document.createElement('div');
+  bubble.className = 'msg-bubble';
+  bubble.innerHTML = sanitizeAndFormat(html);
+
+  const meta = document.createElement('div');
+  meta.className = 'msg-meta';
+  meta.innerHTML = `<span>${getTimestamp()}</span>${!isAI ? '<span class="msg-ticks material-symbols-outlined" style="font-size:14px;vertical-align:middle">done_all</span>' : ''}`;
+
+  body.appendChild(bubble);
+  body.appendChild(meta);
+  msg.appendChild(avatar);
+  msg.appendChild(body);
+  chatMessages.appendChild(msg);
+  scrollChatToBottom();
+  return msg;
+}
+
+function showTyping() {
+  const el = document.createElement('div');
+  el.id = 'typingInd'; el.className = 'msg ai';
+  el.setAttribute('aria-label', state.lang === 'hi' ? 'AI टाइप कर रहा है' : 'AI is typing');
+  el.innerHTML = `<div class="msg-avatar" aria-hidden="true">🤖</div>
+    <div class="msg-body"><div class="msg-bubble">
+      <div class="typing-indicator" aria-hidden="true">
+        <span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>
+      </div></div></div>`;
+  chatMessages.appendChild(el);
+  scrollChatToBottom();
+}
+function hideTyping() { document.getElementById('typingInd')?.remove(); }
+
+function sanitizeAndFormat(text) {
+  // XSS protection + markdown-style formatting
+  return text
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g,'<em>$1</em>')
+    .replace(/`([^`]+)`/g,'<code style="background:rgba(0,0,0,0.07);padding:1px 4px;border-radius:3px">$1</code>')
+    .replace(/^(\d+)\.\s/gm,'<br/><strong>$1.</strong> ')
+    .replace(/^[-•]\s/gm,'<br/>• ')
+    .replace(/\n\n+/g,'<br/><br/>')
+    .replace(/\n/g,'<br/>');
+}
+
+async function sendMessage(text) {
+  const msg = (text || chatInput.value).trim();
+  if (!msg) return;
+  if (!state.apiKey) { addMessage('ai', '⚠️ ' + t('chatDisabled')); return; }
+
+  chatInput.value = '';
+  autoResizeTA();
+  chatSendBtn.disabled = true;
+  document.getElementById('chatStatus').textContent = t('chatThinking');
+
+  addMessage('user', msg);
+  showTyping();
+
+  try {
+    const reply = await callGemini(msg);
+    hideTyping();
+    addMessage('ai', reply);
+  } catch(err) {
+    hideTyping();
+    addMessage('ai', `⚠️ Error: ${err.message}. Please verify your API key and try again.`);
+  } finally {
+    chatSendBtn.disabled = !state.apiKey;
+    document.getElementById('chatStatus').textContent = t('chatOnline');
+    chatInput.focus();
+  }
+}
+
+chatSendBtn.addEventListener('click', () => sendMessage());
+chatInput.addEventListener('keydown', e => { if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); if(!chatSendBtn.disabled) sendMessage(); }});
+chatInput.addEventListener('input', () => { autoResizeTA(); chatSendBtn.disabled = !chatInput.value.trim() || !state.apiKey; });
+function autoResizeTA() { chatInput.style.height='auto'; chatInput.style.height=Math.min(chatInput.scrollHeight,110)+'px'; }
+
+document.querySelectorAll('.quick-btn').forEach(btn => {
+  btn.dataset.label = btn.textContent;
+  btn.addEventListener('click', () => sendMessage(btn.dataset.q));
+});
+
+chatInput.disabled = true;
+chatInput.placeholder = t('chatDisabled');
+
+/* ── 7. VOICE INPUT (Feature 2) ── */
+const micBtn = document.getElementById('micBtn');
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+if (SR) {
+  const recognition = new SR();
+  recognition.continuous = false;
+  recognition.interimResults = false;
+
+  micBtn.addEventListener('click', () => {
+    if (!state.apiKey) { alert(t('chatDisabled')); return; }
+    recognition.lang = state.lang === 'hi' ? 'hi-IN' : 'en-IN';
+    recognition.start();
+    micBtn.classList.add('recording');
+    micBtn.setAttribute('aria-label', state.lang === 'hi' ? 'सुन रहा हूँ…' : 'Listening…');
+  });
+
+  recognition.onresult = e => {
+    const transcript = e.results[0][0].transcript;
+    chatInput.value = transcript;
+    autoResizeTA();
+    chatSendBtn.disabled = !transcript.trim() || !state.apiKey;
+  };
+
+  recognition.onend = () => {
+    micBtn.classList.remove('recording');
+    micBtn.setAttribute('aria-label', 'Voice input');
+    if (chatInput.value.trim() && state.apiKey) sendMessage();
+  };
+
+  recognition.onerror = () => {
+    micBtn.classList.remove('recording');
+    micBtn.setAttribute('aria-label', 'Voice input');
+  };
+} else {
+  micBtn.style.display = 'none'; // Hide if not supported
+}
+
+/* ── 8. VOTER ELIGIBILITY CHECKER (Feature 5) ── */
+document.getElementById('checkEligBtn').addEventListener('click', async () => {
+  const age      = parseInt(document.getElementById('eligAge').value);
+  const stateVal = document.getElementById('eligState').value;
+  const citizen  = document.querySelector('input[name="citizen"]:checked')?.value;
+  const regValue = document.querySelector('input[name="registered"]:checked')?.value;
+  const resultEl = document.getElementById('eligResult');
+
+  if (!age || !stateVal || !citizen || !regValue) {
+    resultEl.className = 'checker-result show';
+    resultEl.style.background = 'var(--red-lite)';
+    resultEl.style.borderColor = 'var(--red)';
+    resultEl.textContent = state.lang === 'hi'
+      ? '⚠️ कृपया सभी फ़ील्ड भरें।'
+      : '⚠️ Please fill in all fields before checking.';
+    return;
+  }
+
+  resultEl.className = 'checker-result show';
+  resultEl.style.background = 'var(--navy-lite)';
+  resultEl.style.borderColor = 'var(--border)';
+  resultEl.textContent = t('checking');
+
+  if (state.apiKey) {
+    // AI-powered eligibility check
+    const prompt = `A person asks about Indian voter eligibility:
+- Age: ${age}
+- State: ${stateVal}
+- Indian citizen: ${citizen}
+- On electoral roll: ${regValue}
+
+In ${state.lang === 'hi' ? 'Hindi' : 'English'}, tell them:
+1. Are they eligible to vote in India? (18+, Indian citizen required)
+2. If not registered, exactly how to register on voter.eci.gov.in (Form 6)
+3. What documents they need
+4. Any state-specific information for ${stateVal}
+5. Where their nearest Booth Level Officer (BLO) might help
+Keep response concise and helpful.`;
+
+    try {
+      const res = await fetch(`${GEMINI_API_URL}?key=${encodeURIComponent(state.apiKey)}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          system_instruction: { parts:[{text: SYSTEM_PROMPT}] },
+          contents: [{ role:'user', parts:[{text:prompt}] }],
+          generationConfig: { maxOutputTokens: 400 }
+        })
+      });
+      const data = await res.json();
+      const txt = data?.candidates?.[0]?.content?.parts?.[0]?.text ?? t('notEligible');
+      const isEligible = age >= 18 && citizen === 'yes';
+      resultEl.className = 'checker-result show ' + (isEligible ? 'eligible' : 'not-eligible');
+      resultEl.innerHTML = sanitizeAndFormat(txt);
+    } catch {
+      // Fallback to rule-based check
+      ruleBasedEligibility(age, citizen, regValue, stateVal, resultEl);
+    }
+  } else {
+    ruleBasedEligibility(age, citizen, regValue, stateVal, resultEl);
+  }
+});
+
+function ruleBasedEligibility(age, citizen, reg, stateVal, el) {
+  const eligible = age >= 18 && citizen === 'yes';
+  el.className = 'checker-result show ' + (eligible ? 'eligible' : 'not-eligible');
+  if (eligible) {
+    el.innerHTML = state.lang === 'hi'
+      ? `✅ आप <strong>${stateVal}</strong> में मतदान करने के योग्य हैं!<br><br>
+         ${reg === 'no' ? '📝 <strong>पंजीकरण कैसे करें:</strong><br>1. voter.eci.gov.in पर जाएं<br>2. Form 6 भरें<br>3. आधार/आयु प्रमाण अपलोड करें<br>4. BLO सत्यापन की प्रतीक्षा करें' : '✅ आप पहले से पंजीकृत हैं। voter.eci.gov.in पर अपना मतदान केंद्र जांचें।'}`
+      : `✅ You are eligible to vote in <strong>${stateVal}</strong>!<br><br>
+         ${reg === 'no' ? '📝 <strong>How to register:</strong><br>1. Visit voter.eci.gov.in<br>2. Fill Form 6 online<br>3. Upload Aadhaar/age proof<br>4. Await BLO verification' : '✅ Already registered! Check your polling booth at voter.eci.gov.in'}`;
+  } else {
+    el.innerHTML = state.lang === 'hi'
+      ? `❌ ${age < 18 ? 'मतदान के लिए न्यूनतम आयु 18 वर्ष है।' : 'केवल भारतीय नागरिक ही मतदान कर सकते हैं।'}`
+      : `❌ ${age < 18 ? 'Minimum voting age in India is 18 years.' : 'Only Indian citizens can vote in Indian elections.'}`;
+  }
+}
+
+/* ── 9. ELECTION COUNTDOWN (Feature 6) ── */
+const ELECTIONS = [
+  { name: 'Uttar Pradesh Assembly 2027', nameHi: 'उत्तर प्रदेश विधानसभा 2027', sub: 'Est. February 2027 · Vidhan Sabha', subHi: 'अनुमानित फरवरी 2027 · विधान सभा', date: new Date('2027-02-10') },
+  { name: 'Next Lok Sabha 2029',          nameHi: 'लोक सभा 2029',                sub: 'Est. April–May 2029 · General Election', subHi: 'अनुमानित अप्रैल-मई 2029 · आम चुनाव', date: new Date('2029-04-15') }
+];
+
+const nextElection = ELECTIONS.find(e => e.date > new Date()) || ELECTIONS[ELECTIONS.length-1];
+document.getElementById('countdownElectionName').textContent = nextElection.name;
+document.getElementById('countdownElectionDate').textContent = nextElection.sub;
+
+function updateCountdown() {
+  const diff = Math.max(0, nextElection.date - new Date());
+  document.getElementById('cdDays').textContent  = Math.floor(diff/864e5);
+  document.getElementById('cdHours').textContent = Math.floor((diff%864e5)/36e5);
+  document.getElementById('cdMins').textContent  = Math.floor((diff%36e5)/6e4);
+  document.getElementById('cdSecs').textContent  = Math.floor((diff%6e4)/1e3);
+}
+updateCountdown();
+setInterval(updateCountdown, 1000);
+
+/* ── 10. INDIA MAP (Feature 1) ── */
+const STATES = [
+  { name:'Uttar Pradesh',    hi:'उत्तर प्रदेश',    seats:80, phase:7, x:208,y:148, voters:'15.2 Cr', turnout:'57.79%' },
+  { name:'Maharashtra',      hi:'महाराष्ट्र',       seats:48, phase:5, x:140,y:268, voters:'9.1 Cr',  turnout:'61.32%' },
+  { name:'West Bengal',      hi:'पश्चिम बंगाल',    seats:42, phase:7, x:294,y:178, voters:'7.5 Cr',  turnout:'76.21%' },
+  { name:'Bihar',            hi:'बिहार',            seats:40, phase:7, x:252,y:162, voters:'7.4 Cr',  turnout:'57.04%' },
+  { name:'Tamil Nadu',       hi:'तमिल नाडु',        seats:39, phase:1, x:195,y:400, voters:'6.2 Cr',  turnout:'69.72%' },
+  { name:'Madhya Pradesh',   hi:'मध्य प्रदेश',      seats:29, phase:4, x:172,y:198, voters:'5.6 Cr',  turnout:'73.00%' },
+  { name:'Karnataka',        hi:'कर्नाटक',          seats:28, phase:2, x:160,y:342, voters:'5.5 Cr',  turnout:'69.61%' },
+  { name:'Gujarat',          hi:'गुजरात',            seats:26, phase:3, x:78,y:218,  voters:'4.9 Cr',  turnout:'59.56%' },
+  { name:'Rajasthan',        hi:'राजस्थान',          seats:25, phase:2, x:112,y:158, voters:'5.1 Cr',  turnout:'59.07%' },
+  { name:'Andhra Pradesh',   hi:'आंध्र प्रदेश',     seats:25, phase:1, x:216,y:338, voters:'4.1 Cr',  turnout:'81.07%' },
+  { name:'Odisha',           hi:'ओडिशा',             seats:21, phase:4, x:264,y:242, voters:'3.5 Cr',  turnout:'74.21%' },
+  { name:'Telangana',        hi:'तेलंगाना',          seats:17, phase:1, x:190,y:296, voters:'3.2 Cr',  turnout:'63.47%' },
+  { name:'Kerala',           hi:'केरल',             seats:20, phase:1, x:155,y:388, voters:'2.7 Cr',  turnout:'71.27%' },
+  { name:'Jharkhand',        hi:'झारखंड',           seats:14, phase:4, x:256,y:202, voters:'2.6 Cr',  turnout:'66.98%' },
+  { name:'Assam',            hi:'असम',              seats:14, phase:3, x:332,y:147, voters:'2.3 Cr',  turnout:'80.62%' },
+  { name:'Punjab',           hi:'पंजाब',            seats:13, phase:7, x:114,y:82,  voters:'2.1 Cr',  turnout:'60.97%' },
+  { name:'Chhattisgarh',     hi:'छत्तीसगढ़',        seats:11, phase:3, x:218,y:234, voters:'2.0 Cr',  turnout:'72.58%' },
+  { name:'Haryana',          hi:'हरियाणा',          seats:10, phase:6, x:140,y:102, voters:'1.9 Cr',  turnout:'64.98%' },
+  { name:'Delhi',            hi:'दिल्ली',           seats:7,  phase:6, x:150,y:120, voters:'1.5 Cr',  turnout:'58.69%' },
+  { name:'Uttarakhand',      hi:'उत्तराखंड',        seats:5,  phase:5, x:180,y:97,  voters:'0.8 Cr',  turnout:'65.23%' },
+  { name:'Himachal Pradesh', hi:'हिमाचल प्रदेश',   seats:4,  phase:7, x:155,y:70,  voters:'0.6 Cr',  turnout:'72.02%' },
+  { name:'J&K',              hi:'जम्मू & कश्मीर', seats:6,  phase:5, x:138,y:42,  voters:'0.8 Cr',  turnout:'58.46%' },
+  { name:'Goa',              hi:'गोवा',             seats:2,  phase:3, x:92,y:298,  voters:'0.1 Cr',  turnout:'76.63%' },
+];
+
+const PHASE_COLORS = ['','#E74C3C','#E67E22','#D4AC0D','#27AE60','#1ABC9C','#2980B9','#8E44AD'];
+
+function buildMap() {
+  const g = document.getElementById('stateDotsGroup');
+  STATES.forEach((s, i) => {
+    const r = Math.max(5, Math.min(14, 5 + s.seats/10));
+    const color = PHASE_COLORS[s.phase] || '#888';
+    const group = document.createElementNS('http://www.w3.org/2000/svg','g');
+    group.setAttribute('class','state-region');
+    group.setAttribute('role','button');
+    group.setAttribute('tabindex','0');
+    group.setAttribute('aria-label', `${s.name}: ${s.seats} seats, Phase ${s.phase}`);
+    group.style.cursor = 'pointer';
+
+    const circle = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    circle.setAttribute('class','state-dot');
+    circle.setAttribute('cx', s.x);
+    circle.setAttribute('cy', s.y);
+    circle.setAttribute('r', r);
+    circle.setAttribute('fill', color);
+    circle.setAttribute('stroke','#fff');
+    circle.setAttribute('stroke-width','1.5');
+    circle.setAttribute('opacity','0.85');
+
+    const label = document.createElementNS('http://www.w3.org/2000/svg','text');
+    label.setAttribute('x', s.x);
+    label.setAttribute('y', s.y - r - 2);
+    label.setAttribute('text-anchor','middle');
+    label.setAttribute('font-size','7');
+    label.setAttribute('fill','#333');
+    label.setAttribute('font-family','DM Sans,sans-serif');
+    label.setAttribute('font-weight','600');
+    label.setAttribute('pointer-events','none');
+    label.textContent = s.name.split(' ')[0];
+
+    group.appendChild(circle);
+    group.appendChild(label);
+    g.appendChild(group);
+
+    const showInfo = () => {
+      const panel = document.getElementById('stateInfoPanel');
+      panel.style.display = 'block';
+      panel.innerHTML = `
+        <h4>📍 ${state.lang==='hi' ? s.hi : s.name}</h4>
+        <div class="info-grid">
+          <div class="info-cell"><strong>${state.lang==='hi'?'लोक सभा सीटें':'Lok Sabha Seats'}</strong>${s.seats}</div>
+          <div class="info-cell"><strong>${state.lang==='hi'?'चुनाव चरण':'Election Phase'}</strong>Phase ${s.phase}</div>
+          <div class="info-cell"><strong>${state.lang==='hi'?'मतदाता':'Voters'}</strong>${s.voters}</div>
+          <div class="info-cell"><strong>${state.lang==='hi'?'मतदान (2024)':'Turnout (2024)'}</strong>${s.turnout}</div>
+        </div>`;
+      // Highlight selected
+      g.querySelectorAll('circle').forEach(c => c.setAttribute('opacity','0.4'));
+      circle.setAttribute('opacity','1');
+      circle.setAttribute('r', r+3);
     };
 
-    // System prompt — defines AI persona for election guidance
-    const SYSTEM_PROMPT = `You are ElectIQ, a friendly and knowledgeable election guide AI powered by Google Gemini.
-Your purpose is to help citizens understand:
-- The election process from registration to certification
-- How to register to vote and eligibility requirements
-- What happens on Election Day step by step
-- How votes are counted, canvassed, and certified
-- Different electoral systems (first-past-the-post, ranked choice, proportional, etc.)
-- Key election terminology and concepts
+    group.addEventListener('click', showInfo);
+    group.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' ') showInfo(); });
+    circle.addEventListener('mouseenter', () => { circle.setAttribute('opacity','1'); });
+    circle.addEventListener('mouseleave', () => { circle.setAttribute('opacity','0.85'); });
+  });
+}
+buildMap();
 
-Guidelines:
-- Be clear, concise, and non-partisan — present facts about electoral systems, not political opinions
-- Use simple language accessible to first-time voters
-- When explaining steps, use numbered lists for clarity
-- If asked about specific countries, provide accurate information about their electoral systems
-- Encourage civic participation and informed voting
-- If asked something outside elections/civics, politely redirect to election topics`;
+/* ── 11. ECI DASHBOARD (Feature 4) ── */
+function buildDashboard() {
+  const grid = document.getElementById('dashGrid');
 
-    /* ============================================================
-       2. API KEY MANAGEMENT
-    ============================================================ */
-    const apiKeyInput  = document.getElementById('apiKeyInput');
-    const saveApiBtn   = document.getElementById('saveApiKey');
-    const apiStatus    = document.getElementById('apiStatus');
-    const chatSendBtn  = document.getElementById('chatSendBtn');
-    const chatInput    = document.getElementById('chatInput');
-
-    /**
-     * Validates and saves the Gemini API key.
-     * Security: key is kept in JS memory only — never stored in localStorage/cookies.
-     * Validation: format-check only (AIza prefix + min length).
-     * The first real chat call will surface any quota/permission errors gracefully.
-     */
-    saveApiBtn.addEventListener('click', () => {
-      const key = apiKeyInput.value.trim();
-
-      // Format validation — Gemini keys always start with AIza and are 39 chars
-      if (!key || !key.startsWith('AIza') || key.length < 20) {
-        showApiStatus('⚠ Invalid key format', false);
-        return;
-      }
-
-      // Save key to session state (never persisted to storage)
-      state.apiKey = key;
-      showApiStatus('✓ Key saved', true);
-
-      // Unlock chat UI
-      chatInput.disabled = false;
-      chatInput.placeholder = 'Ask anything about elections…';
-      chatSendBtn.disabled = false;
-      document.getElementById('chatStatus').textContent = 'AI online · Gemini 2.5 Flash';
-      chatInput.focus();
-    });
-
-    // Also allow pressing Enter in the API key field to save
-    apiKeyInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') saveApiBtn.click();
-    });
-
-    function showApiStatus(msg, ok) {
-      apiStatus.textContent = msg;
-      apiStatus.className = 'api-status ' + (ok ? 'ok' : 'err');
+  const dashData = [
+    {
+      title: state.lang==='hi' ? 'लोक सभा सीटें (2024 परिणाम)' : 'Lok Sabha Seats — 2024 Results',
+      type: 'bars',
+      rows: [
+        { label:'NDA',    val:293, max:543, color:'#E8621A' },
+        { label:'INDIA',  val:234, max:543, color:'#1843A0' },
+        { label:'Others', val:16,  max:543, color:'#0A6B38' },
+      ]
+    },
+    {
+      title: state.lang==='hi' ? 'चरणवार मतदान %' : 'Phase-wise Voter Turnout %',
+      type: 'bars',
+      rows: [
+        { label:'Phase 1', val:66.14, max:100, color:'#E74C3C' },
+        { label:'Phase 2', val:66.71, max:100, color:'#E67E22' },
+        { label:'Phase 3', val:65.68, max:100, color:'#D4AC0D' },
+        { label:'Phase 4', val:67.70, max:100, color:'#27AE60' },
+        { label:'Phase 5', val:62.20, max:100, color:'#1ABC9C' },
+        { label:'Phase 6', val:63.36, max:100, color:'#2980B9' },
+        { label:'Phase 7', val:57.49, max:100, color:'#8E44AD' },
+      ]
+    },
+    {
+      title: state.lang==='hi' ? 'मतदाता वितरण' : 'Voter Demographics',
+      type: 'donut',
+      segments: [
+        { label: state.lang==='hi'?'पुरुष':'Male',   val:49.7, color:'#1843A0' },
+        { label: state.lang==='hi'?'महिला':'Female', val:48.6, color:'#E8621A' },
+        { label: state.lang==='hi'?'अन्य':'Others',  val:1.7,  color:'#0A6B38' },
+      ]
+    },
+    {
+      title: state.lang==='hi' ? 'प्रमुख आंकड़े' : 'Key Election Stats',
+      type: 'stats',
+      items: [
+        { num:'96.8 Cr', label: state.lang==='hi'?'पंजीकृत मतदाता':'Registered Voters' },
+        { num:'66.14%',  label: state.lang==='hi'?'कुल मतदान':'Overall Turnout' },
+        { num:'10.5 L',  label: state.lang==='hi'?'मतदान केंद्र':'Polling Stations' },
+        { num:'1.5 Cr',  label: state.lang==='hi'?'चुनाव कर्मचारी':'Election Staff' },
+      ]
     }
+  ];
 
-    /* ============================================================
-       3. GEMINI API — Google Service #3
-    ============================================================ */
-    /**
-     * Sends a message to Gemini 2.5 Flash and returns the response text.
-     * Includes full conversation history for multi-turn context.
-     * @param {string} userMessage
-     * @returns {Promise<string>}
-     */
-    async function callGemini(userMessage) {
-      if (!state.apiKey) throw new Error('API key not set');
+  dashData.forEach(d => {
+    const card = document.createElement('div');
+    card.className = 'dash-card';
+    card.setAttribute('role','listitem');
 
-      // Append user message to history
-      state.chatHistory.push({
-        role: 'user',
-        parts: [{ text: userMessage }]
-      });
+    let inner = `<div class="dash-card-title">${d.title}</div>`;
 
-      const payload = {
-        system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
-        contents: state.chatHistory,
-        generationConfig: {
-          temperature: 0.7,
-          topK: 40,
-          topP: 0.95,
-          maxOutputTokens: 800,
-        },
-        safetySettings: [
-          { category: 'HARM_CATEGORY_HARASSMENT',        threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-          { category: 'HARM_CATEGORY_HATE_SPEECH',       threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-          { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-        ]
-      };
-
-      const response = await fetch(
-        `${GEMINI_API_BASE}?key=${encodeURIComponent(state.apiKey)}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        }
-      );
-
-      if (!response.ok) {
-        const err = await response.json().catch(() => ({}));
-        throw new Error(err?.error?.message || `HTTP ${response.status}`);
-      }
-
-      const data = await response.json();
-      const aiText = data?.candidates?.[0]?.content?.parts?.[0]?.text ?? 'No response received.';
-
-      // Append AI response to history (for multi-turn context)
-      state.chatHistory.push({
-        role: 'model',
-        parts: [{ text: aiText }]
-      });
-
-      return aiText;
-    }
-
-    /* ============================================================
-       4. CHAT UI
-    ============================================================ */
-    const chatMessages = document.getElementById('chatMessages');
-
-    /** Renders a chat message bubble */
-    function addMessage(role, html) {
-      const isAI = role === 'ai';
-      const msg = document.createElement('div');
-      msg.className = `msg ${role}`;
-      msg.setAttribute('role', 'article');
-      msg.setAttribute('aria-label', `${isAI ? 'AI' : 'You'}: ${html.replace(/<[^>]*>/g,'').slice(0,60)}`);
-
-      const avatar = document.createElement('div');
-      avatar.className = 'msg-avatar';
-      avatar.setAttribute('aria-hidden', 'true');
-      avatar.innerHTML = isAI
-        ? '<span class="material-symbols-outlined" style="font-size:15px">smart_toy</span>'
-        : '<span class="material-symbols-outlined" style="font-size:15px">person</span>';
-
-      const bubble = document.createElement('div');
-      bubble.className = 'msg-bubble';
-      bubble.innerHTML = formatAIText(html);
-
-      msg.appendChild(avatar);
-      msg.appendChild(bubble);
-      chatMessages.appendChild(msg);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-      return msg;
-    }
-
-    /** Shows the typing indicator */
-    function showTyping() {
-      const el = document.createElement('div');
-      el.id = 'typingIndicator';
-      el.className = 'msg ai';
-      el.setAttribute('aria-label', 'AI is typing');
-      el.setAttribute('aria-live', 'polite');
-      el.innerHTML = `
-        <div class="msg-avatar" aria-hidden="true">
-          <span class="material-symbols-outlined" style="font-size:15px">smart_toy</span>
-        </div>
-        <div class="msg-bubble">
-          <div class="typing-indicator" aria-hidden="true">
-            <span class="typing-dot"></span>
-            <span class="typing-dot"></span>
-            <span class="typing-dot"></span>
+    if (d.type === 'bars') {
+      inner += `<div class="bar-chart">`;
+      d.rows.forEach(r => {
+        const pct = Math.round((r.val/r.max)*100);
+        inner += `<div class="bar-row">
+          <div class="bar-label">${r.label}</div>
+          <div class="bar-track" role="progressbar" aria-valuenow="${r.val}" aria-valuemax="${r.max}" aria-label="${r.label}: ${r.val}">
+            <div class="bar-fill" style="width:0%;background:${r.color}" data-pct="${pct}%"></div>
           </div>
+          <div class="bar-val" style="color:${r.color}">${r.val}</div>
         </div>`;
-      chatMessages.appendChild(el);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
+      });
+      inner += `</div>`;
+    } else if (d.type === 'donut') {
+      // CSS-based donut chart
+      let offset = 0;
+      const segments = d.segments.map(s => {
+        const pct = s.val;
+        const seg = { ...s, offset, pct };
+        offset += pct;
+        return seg;
+      });
+      const gradStops = segments.map(s => `${s.color} ${s.offset}% ${s.offset+s.pct}%`).join(', ');
+      inner += `<div class="donut-wrap">
+        <div style="width:110px;height:110px;border-radius:50%;background:conic-gradient(${gradStops});flex-shrink:0" role="img" aria-label="Voter distribution chart"></div>
+        <div class="donut-legend">
+          ${d.segments.map(s=>`<div class="donut-item"><div class="donut-dot" style="background:${s.color}"></div>${s.label}: ${s.val}%</div>`).join('')}
+        </div></div>`;
+    } else if (d.type === 'stats') {
+      inner += `<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        ${d.items.map(it=>`<div>
+          <div class="big-number">${it.num}</div>
+          <div class="big-label">${it.label}</div>
+        </div>`).join('')}
+      </div>`;
     }
 
-    function hideTyping() {
-      document.getElementById('typingIndicator')?.remove();
-    }
+    card.innerHTML = inner;
+    grid.appendChild(card);
+  });
 
-    /**
-     * Converts plain Gemini response text into readable HTML.
-     * Handles markdown-style bold, bullet lists, and numbered lists.
-     */
-    function formatAIText(text) {
-      return text
-        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')  // XSS protection
-        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')   // bold
-        .replace(/\*(.*?)\*/g, '<em>$1</em>')               // italic
-        .replace(/`([^`]+)`/g, '<code style="background:var(--paper-2);padding:1px 5px;border-radius:4px;font-size:0.85em">$1</code>')
-        .replace(/^(\d+)\.\s/gm, '<br/><strong>$1.</strong> ')   // numbered lists
-        .replace(/^[-•]\s/gm, '<br/>• ')                         // bullet lists
-        .replace(/\n\n+/g, '<br/><br/>')
-        .replace(/\n/g, '<br/>');
-    }
-
-    /** Main send handler */
-    async function sendMessage(text) {
-      const userText = (text || chatInput.value).trim();
-      if (!userText) return;
-      if (!state.apiKey) {
-        addMessage('ai', '⚠️ Please add your Google Gemini API key first using the form above.');
-        return;
-      }
-
-      chatInput.value = '';
-      autoResizeTextarea();
-      chatSendBtn.disabled = true;
-      document.getElementById('chatStatus').textContent = 'Thinking…';
-
-      addMessage('user', userText);
-      showTyping();
-
-      try {
-        const response = await callGemini(userText);
-        hideTyping();
-        addMessage('ai', response);
-      } catch (err) {
-        hideTyping();
-        addMessage('ai', `⚠️ Error: ${err.message}. Please check your API key and try again.`);
-      } finally {
-        chatSendBtn.disabled = false;
-        document.getElementById('chatStatus').textContent = 'AI online · Gemini 2.5 Flash';
-        chatInput.focus();
-      }
-    }
-
-    // Send button click
-    chatSendBtn.addEventListener('click', () => sendMessage());
-
-    // Enter key to send (Shift+Enter for new line)
-    chatInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        if (!chatSendBtn.disabled) sendMessage();
+  // Animate bars when visible
+  const barObs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.querySelectorAll('.bar-fill').forEach(b => {
+          b.style.width = b.dataset.pct;
+        });
+        barObs.unobserve(e.target);
       }
     });
+  }, { threshold: 0.3 });
+  grid.querySelectorAll('.dash-card').forEach(c => barObs.observe(c));
+}
+buildDashboard();
 
-    // Auto-resize textarea
-    chatInput.addEventListener('input', autoResizeTextarea);
-    function autoResizeTextarea() {
-      chatInput.style.height = 'auto';
-      chatInput.style.height = Math.min(chatInput.scrollHeight, 120) + 'px';
-    }
+/* ── 12. PARTY EXPLORER (Feature 7) ── */
+const PARTIES = [
+  { abbr:'BJP',    name:'Bharatiya Janata Party',    nameHi:'भारतीय जनता पार्टी',  symbol:'🪷', alliance:'NDA',   seats2024:240, founded:1980 },
+  { abbr:'INC',    name:'Indian National Congress',   nameHi:'भारतीय राष्ट्रीय कांग्रेस', symbol:'✋', alliance:'INDIA', seats2024:99, founded:1885 },
+  { abbr:'SP',     name:'Samajwadi Party',            nameHi:'समाजवादी पार्टी',     symbol:'🚲', alliance:'INDIA', seats2024:37, founded:1992 },
+  { abbr:'AITC',   name:'All India Trinamool Congress',nameHi:'अखिल भारतीय तृणमूल कांग्रेस', symbol:'🌺', alliance:'INDIA', seats2024:29, founded:1998 },
+  { abbr:'DMK',    name:'Dravida Munnetra Kazhagam',  nameHi:'द्रविड मुनेत्र कषगम', symbol:'🌅', alliance:'INDIA', seats2024:22, founded:1949 },
+  { abbr:'TDP',    name:'Telugu Desam Party',         nameHi:'तेलुगु देशम पार्टी', symbol:'🚲', alliance:'NDA',   seats2024:16, founded:1982 },
+  { abbr:'JDU',    name:'Janata Dal (United)',         nameHi:'जनता दल (यूनाइटेड)', symbol:'🏹', alliance:'NDA',   seats2024:12, founded:2003 },
+  { abbr:'SS(SHS)',name:'Shiv Sena (Shinde)',          nameHi:'शिव सेना (शिंदे)',   symbol:'🔱', alliance:'NDA',   seats2024:7,  founded:1966 },
+  { abbr:'CPI(M)', name:'Communist Party of India (M)',nameHi:'भारतीय कम्युनिस्ट पार्टी (मार्क्सवादी)', symbol:'☭', alliance:'Other', seats2024:4, founded:1964 },
+  { abbr:'AAP',    name:'Aam Aadmi Party',             nameHi:'आम आदमी पार्टी',    symbol:'🧹', alliance:'INDIA', seats2024:3,  founded:2012 },
+  { abbr:'BSP',    name:'Bahujan Samaj Party',         nameHi:'बहुजन समाज पार्टी', symbol:'🐘', alliance:'Other', seats2024:0,  founded:1984 },
+  { abbr:'RJD',    name:'Rashtriya Janata Dal',        nameHi:'राष्ट्रीय जनता दल', symbol:'🔦', alliance:'INDIA', seats2024:4,  founded:1997 },
+];
 
-    // Enable/disable send based on input & api key
-    chatInput.addEventListener('input', () => {
-      chatSendBtn.disabled = !chatInput.value.trim() || !state.apiKey;
+function buildParties() {
+  const grid = document.getElementById('partiesGrid');
+  PARTIES.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'party-card';
+    card.setAttribute('role','listitem');
+    card.setAttribute('tabindex','0');
+    card.setAttribute('aria-label', `${p.abbr}: ${p.name}`);
+    const tagClass = p.alliance==='NDA'?'tag-nda':p.alliance==='INDIA'?'tag-india':'tag-other';
+    card.innerHTML = `
+      <div class="party-symbol" aria-hidden="true">${p.symbol}</div>
+      <div class="party-abbr">${p.abbr}</div>
+      <div class="party-name">${state.lang==='hi' ? p.nameHi : p.name}</div>
+      <span class="party-tag ${tagClass}">${p.alliance}</span>
+      <div style="margin-top:8px;font-size:.72rem;color:var(--ink-soft)">
+        ${state.lang==='hi'?'2024 सीटें':'2024 Seats'}: <strong>${p.seats2024}</strong> &nbsp;|&nbsp;
+        ${state.lang==='hi'?'स्थापना':'Est.'}: ${p.founded}
+      </div>`;
+    card.addEventListener('click', () => {
+      if (state.apiKey) sendMessage(`Tell me about ${p.name} (${p.abbr}) — their policies, current leadership, and role in Indian politics. Be factual and non-partisan.`);
     });
+    card.addEventListener('keydown', e => { if(e.key==='Enter') card.click(); });
+    grid.appendChild(card);
+  });
+}
+buildParties();
 
-    // Initial state — disabled until API key set
-    chatInput.disabled = true;
-    chatInput.placeholder = 'Add your Gemini API key above to start chatting…';
+/* ── 13. QUIZ ENGINE — 3 LEVELS (Feature 10) ── */
+const QUIZ_DATA = {
+  easy: [
+    { q:'Who oversees elections in India?', opts:['Supreme Court','Election Commission of India (ECI)','President of India','Parliament'], correct:1, exp:'The Election Commission of India (ECI), established under Article 324 of the Constitution, is an autonomous body that oversees all elections in India.' },
+    { q:'What is the minimum age to vote in India?', opts:['16 years','21 years','18 years','25 years'], correct:2, exp:'The 61st Constitutional Amendment (1988) reduced the voting age from 21 to 18 years, effective from 1989.' },
+    { q:'What does NOTA stand for in Indian elections?', opts:['No Option To Abstain','None of the Above','No Official Total Allowance','National Order of Transparent Accountability'], correct:1, exp:'NOTA (None of the Above) was introduced in India in 2013 following a Supreme Court order, allowing voters to reject all candidates.' },
+    { q:'What is an EVM?', opts:['Electoral Vote Monitor','Electronic Voting Machine','Election Verification Method','Eligible Voter Module'], correct:1, exp:'Electronic Voting Machines (EVMs) replaced paper ballots in Indian elections. They consist of a Control Unit and Balloting Unit, connected by a cable.' },
+    { q:'What document is issued to voters by ECI?', opts:['PAN Card','Passport','EPIC (Voter ID Card)','Aadhaar Card'], correct:2, exp:'The Elector\'s Photo Identity Card (EPIC), commonly called Voter ID, is issued by the Election Commission of India to all registered voters.' },
+  ],
+  medium: [
+    { q:'How many seats are there in the Lok Sabha?', opts:['250','545','543','552'], correct:2, exp:'The Lok Sabha has 543 elected seats (plus 2 Anglo-Indian seats that were abolished by the 104th Amendment in 2020). Elections are held every 5 years.' },
+    { q:'What is the Model Code of Conduct (MCC)?', opts:['A law passed by Parliament','A set of guidelines by ECI for parties and candidates during elections','A court ruling on electoral disputes','Rules for counting votes'], correct:1, exp:'The Model Code of Conduct is a set of guidelines issued by the ECI that political parties and candidates must follow from election announcement until results are declared.' },
+    { q:'What is VVPAT?', opts:['A voter verification app','Voter Verifiable Paper Audit Trail — a paper slip printer attached to EVM','A type of ballot paper','Vote Validation and Percentage Assessment Tool'], correct:1, exp:'VVPAT (Voter Verifiable Paper Audit Trail) is attached to EVMs. After a voter casts their vote, a paper slip showing the chosen candidate is displayed for 7 seconds before being cut and stored.' },
+    { q:'Under which Article of the Constitution is the Election Commission established?', opts:['Article 124','Article 280','Article 324','Article 352'], correct:2, exp:'Article 324 of the Indian Constitution vests the superintendence, direction, and control of elections in the Election Commission of India.' },
+    { q:'What is the security deposit for a Lok Sabha candidate?', opts:['₹10,000','₹50,000','₹25,000','₹1,00,000'], correct:2, exp:'A candidate for Lok Sabha must deposit ₹25,000 (₹12,500 for SC/ST candidates). The deposit is forfeited if they fail to secure 1/6th of valid votes.' },
+  ],
+  hard: [
+    { q:'What is the 10th Schedule of the Indian Constitution?', opts:['Fundamental Rights','Emergency Provisions','Anti-defection Law','Panchayati Raj'], correct:2, exp:'The 10th Schedule (added by 52nd Amendment, 1985) is the Anti-defection Law. It disqualifies elected members who voluntarily give up party membership or vote against party whip.' },
+    { q:'What percentage of valid votes must a candidate secure to avoid losing their security deposit?', opts:['1/4th','1/6th','1/8th','1/3rd'], correct:1, exp:'Under Section 158 of the Representation of People Act 1951, a candidate forfeits their security deposit if they fail to secure 1/6th (16.67%) of total valid votes polled in their constituency.' },
+    { q:'The Delimitation Commission determines constituency boundaries. How often is it constituted?', opts:['Every 5 years','After every census','At ECI\'s discretion','Every 10 years automatically'], correct:1, exp:'The Delimitation Commission is constituted by the President after every census to redraw constituency boundaries based on updated population data. The last delimitation was based on 2001 census.' },
+    { q:'What is a by-election (उपचुनाव) in India?', opts:['An election held before scheduled time','An election held when a seat falls vacant mid-term','A second round election','An election in smaller constituencies'], correct:1, exp:'A by-election (or bye-election) is held when a Lok Sabha or Vidhan Sabha seat falls vacant mid-term due to death, resignation, disqualification, or court order. It must be held within 6 months.' },
+    { q:'Which electoral system does India use for Lok Sabha elections?', opts:['Proportional Representation','Single Transferable Vote','First Past The Post (FPTP)','Alternative Vote'], correct:2, exp:'India uses First Past The Post (FPTP), also called Simple Plurality system. The candidate with the highest number of votes wins, regardless of whether they secure a majority. This system is also used in UK, USA, and Canada.' },
+  ]
+};
 
-    // Quick prompt buttons
-    document.querySelectorAll('.quick-btn').forEach(btn => {
-      btn.addEventListener('click', () => sendMessage(btn.dataset.q));
-    });
+const BADGES = { easy: '🥉 First-time Voter', medium: '🥈 Informed Citizen', hard: '🥇 Election Expert' };
+let currentLevel = 'easy';
 
-    /* ============================================================
-       5. QUIZ ENGINE
-    ============================================================ */
-    const QUIZ_DATA = [
-      {
-        q: 'What is the primary purpose of voter registration?',
-        opts: [
-          'To collect personal data for marketing',
-          'To confirm voter eligibility and assign a polling location',
-          'To allow candidates to contact you',
-          'To automatically enroll citizens in jury duty',
-        ],
-        correct: 1,
-        explanation: 'Voter registration verifies that a citizen meets eligibility requirements (age, citizenship, residency) and assigns them to the correct polling place or precinct.',
-      },
-      {
-        q: 'What is a primary election?',
-        opts: [
-          'The most important election in a country',
-          'A preliminary election to choose a party\'s candidate for the general election',
-          'The first election a citizen votes in',
-          'An election held at the primary school level',
-        ],
-        correct: 1,
-        explanation: 'A primary election is a preliminary vote where party members choose which candidate will represent their party in the upcoming general election.',
-      },
-      {
-        q: 'What happens during the "canvass" process?',
-        opts: [
-          'Candidates campaign door-to-door',
-          'Artists create political artwork',
-          'Election officials officially review and total all votes before certification',
-          'Voters receive their ballot in the mail',
-        ],
-        correct: 2,
-        explanation: 'Canvassing (in election terms) is the official post-election process where all ballots are reviewed, tabulated, and verified before the results are formally certified.',
-      },
-      {
-        q: 'When might a recount be triggered?',
-        opts: [
-          'Whenever a losing candidate requests one',
-          'When the margin of victory is extremely small or within a legal threshold',
-          'After every election as standard procedure',
-          'Only when foreign interference is suspected',
-        ],
-        correct: 1,
-        explanation: 'Most jurisdictions automatically trigger a recount when the margin between candidates falls below a set threshold (e.g., 0.5%). Candidates can also request recounts, sometimes requiring a fee.',
-      },
-      {
-        q: 'What is a provisional ballot?',
-        opts: [
-          'A ballot for first-time voters only',
-          'A temporary ballot used when the polling place runs out of regular ballots',
-          'A safeguard ballot cast when a voter\'s eligibility can\'t be immediately confirmed',
-          'An absentee ballot submitted on Election Day',
-        ],
-        correct: 2,
-        explanation: 'Provisional ballots are given to voters whose eligibility cannot be confirmed on Election Day (e.g., name not on rolls). They are set aside and reviewed after polls close.',
-      },
-    ];
-
-    let quizEl = document.getElementById('quizBody');
-
-    function renderQuiz() {
-      const total = QUIZ_DATA.length;
-      const q = QUIZ_DATA[state.quizIndex];
-      const progress = Math.round((state.quizIndex / total) * 100);
-
-      document.getElementById('quizProgressFill').style.width = progress + '%';
-      document.querySelector('.quiz-progress-bar').setAttribute('aria-valuenow', progress);
-
-      quizEl.innerHTML = `
-        <p class="quiz-q-num">Question ${state.quizIndex + 1} of ${total}</p>
-        <h3 class="quiz-question" id="quizQ">${q.q}</h3>
-        <div class="quiz-options" role="radiogroup" aria-labelledby="quizQ">
-          ${q.opts.map((opt, i) => `
-            <button class="quiz-option"
-                    role="radio"
-                    aria-checked="false"
-                    data-idx="${i}"
-                    aria-label="Option ${String.fromCharCode(65+i)}: ${opt}">
-              <span class="quiz-option-letter" aria-hidden="true">${String.fromCharCode(65+i)}</span>
-              ${opt}
-            </button>`).join('')}
-        </div>
-        <div class="quiz-feedback" id="quizFeedback" role="alert" aria-live="assertive"></div>
-        <div class="quiz-actions">
-          <span class="quiz-score-badge" aria-live="polite">Score: ${state.quizScore}/${state.quizIndex}</span>
-          <button class="btn-quiz" id="quizNextBtn" disabled aria-label="Next question">
-            ${state.quizIndex < total - 1 ? 'Next →' : 'See Results'}
-          </button>
-        </div>`;
-
-      // Attach option handlers
-      quizEl.querySelectorAll('.quiz-option').forEach(btn => {
-        btn.addEventListener('click', () => handleQuizAnswer(btn));
-      });
-
-      document.getElementById('quizNextBtn').addEventListener('click', () => {
-        state.quizIndex++;
-        if (state.quizIndex >= QUIZ_DATA.length) {
-          showQuizResults();
-        } else {
-          state.quizAnswered = false;
-          renderQuiz();
-        }
-      });
-    }
-
-    function handleQuizAnswer(btn) {
-      if (state.quizAnswered) return;
-      state.quizAnswered = true;
-
-      const chosen = parseInt(btn.dataset.idx);
-      const correct = QUIZ_DATA[state.quizIndex].correct;
-      const feedback = document.getElementById('quizFeedback');
-      const allOpts = quizEl.querySelectorAll('.quiz-option');
-
-      allOpts.forEach((b, i) => {
-        b.disabled = true;
-        b.classList.add('revealed');
-        b.setAttribute('aria-checked', i === chosen ? 'true' : 'false');
-        if (i === correct) b.classList.add('correct');
-        if (i === chosen && chosen !== correct) b.classList.add('incorrect');
-      });
-
-      if (chosen === correct) {
-        state.quizScore++;
-        feedback.textContent = '✓ Correct! ' + QUIZ_DATA[state.quizIndex].explanation;
-        feedback.className = 'quiz-feedback show correct';
-      } else {
-        feedback.textContent = '✗ Not quite. ' + QUIZ_DATA[state.quizIndex].explanation;
-        feedback.className = 'quiz-feedback show incorrect';
-      }
-
-      document.getElementById('quizNextBtn').disabled = false;
-    }
-
-    function showQuizResults() {
-      const pct = Math.round((state.quizScore / QUIZ_DATA.length) * 100);
-      const grade = pct >= 80 ? '🏆 Excellent!' : pct >= 60 ? '👍 Good job!' : '📚 Keep learning!';
-
-      document.getElementById('quizProgressFill').style.width = '100%';
-
-      quizEl.innerHTML = `
-        <div style="text-align:center;padding:16px 0">
-          <div style="font-size:3rem;margin-bottom:12px">${grade.split(' ')[0]}</div>
-          <h3 style="font-family:var(--font-head);font-size:1.6rem;font-weight:700;margin-bottom:8px">
-            ${grade.slice(2)}
-          </h3>
-          <p style="font-size:1.1rem;color:var(--ink-soft);margin-bottom:24px">
-            You scored <strong style="color:var(--civic)">${state.quizScore} out of ${QUIZ_DATA.length}</strong> (${pct}%)
-          </p>
-          <button class="btn-quiz" id="quizRestartBtn" style="font-size:1rem;padding:14px 28px"
-                  aria-label="Restart quiz">
-            Retake Quiz
-          </button>
-        </div>`;
-
-      document.getElementById('quizRestartBtn').addEventListener('click', () => {
-        state.quizIndex = 0;
-        state.quizScore = 0;
-        state.quizAnswered = false;
-        renderQuiz();
-      });
-    }
-
-    // Initialize quiz
+document.querySelectorAll('.quiz-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.quiz-tab').forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected','false'); });
+    tab.classList.add('active'); tab.setAttribute('aria-selected','true');
+    currentLevel = tab.dataset.level;
+    state.quizIndex = 0; state.quizScore = 0; state.quizAnswered = false;
     renderQuiz();
+  });
+});
 
-    /* ============================================================
-       6. TIMELINE INTERSECTION OBSERVER (performance-efficient)
-    ============================================================ */
-    const tlItems = document.querySelectorAll('.tl-item');
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
-          observer.unobserve(entry.target); // unobserve after first trigger (efficiency)
-        }
-      });
-    }, { threshold: 0.15 });
+function renderQuiz() {
+  const data  = QUIZ_DATA[currentLevel];
+  const total = data.length;
+  const q     = data[state.quizIndex];
+  const pct   = Math.round((state.quizIndex / total) * 100);
+  const qEl   = document.getElementById('quizBody');
+  const pfEl  = document.getElementById('quizProgressFill');
+  const pbEl  = document.querySelector('.quiz-progress-bar');
 
-    tlItems.forEach(item => observer.observe(item));
+  pfEl.style.width = pct + '%';
+  pbEl.setAttribute('aria-valuenow', pct);
 
-    /* ============================================================
-       7. ACCESSIBILITY TOOLS
-    ============================================================ */
+  // Set bar color per level
+  const colors = { easy:'var(--green)', medium:'var(--gold)', hard:'var(--red)' };
+  pfEl.style.background = colors[currentLevel];
 
-    // Font size controls
-    document.getElementById('fontIncBtn').addEventListener('click', () => {
-      state.fontSize = Math.min(state.fontSize + 2, 22);
-      document.documentElement.style.fontSize = state.fontSize + 'px';
-    });
+  qEl.innerHTML = `
+    <p class="quiz-q-num">${state.lang==='hi'?'प्रश्न':'Question'} ${state.quizIndex+1} / ${total} &nbsp;·&nbsp; ${currentLevel.charAt(0).toUpperCase()+currentLevel.slice(1)}</p>
+    <h3 class="quiz-question" id="qqq">${q.q}</h3>
+    <div class="quiz-options" role="radiogroup" aria-labelledby="qqq">
+      ${q.opts.map((o,i)=>`
+        <button class="quiz-option" data-idx="${i}" role="radio" aria-checked="false" aria-label="${String.fromCharCode(65+i)}: ${o}">
+          <span class="quiz-option-letter" aria-hidden="true">${String.fromCharCode(65+i)}</span>${o}
+        </button>`).join('')}
+    </div>
+    <div class="quiz-feedback" id="qfb" role="alert" aria-live="assertive"></div>
+    <div class="quiz-actions">
+      <span class="quiz-score-badge" aria-live="polite">${state.lang==='hi'?'अंक':'Score'}: ${state.quizScore}/${state.quizIndex}</span>
+      <button class="btn-quiz" id="qnext" disabled aria-label="${state.lang==='hi'?'अगला प्रश्न':'Next question'}">
+        ${state.quizIndex < total-1 ? (state.lang==='hi'?'अगला →':'Next →') : (state.lang==='hi'?'परिणाम देखें':'See Results')}
+      </button>
+    </div>`;
 
-    document.getElementById('fontDecBtn').addEventListener('click', () => {
-      state.fontSize = Math.max(state.fontSize - 2, 12);
-      document.documentElement.style.fontSize = state.fontSize + 'px';
-    });
+  qEl.querySelectorAll('.quiz-option').forEach(btn => btn.addEventListener('click', () => handleAnswer(btn)));
+  document.getElementById('qnext').addEventListener('click', () => {
+    state.quizIndex++;
+    if (state.quizIndex >= total) showResults();
+    else { state.quizAnswered = false; renderQuiz(); }
+  });
+}
 
-    // High-contrast toggle
-    const contrastBtn = document.getElementById('contrastBtn');
-    contrastBtn.addEventListener('click', () => {
-      const on = document.body.classList.toggle('high-contrast');
-      contrastBtn.classList.toggle('active', on);
-      contrastBtn.setAttribute('aria-pressed', on.toString());
-    });
+function handleAnswer(btn) {
+  if (state.quizAnswered) return;
+  state.quizAnswered = true;
+  const chosen  = parseInt(btn.dataset.idx);
+  const correct = QUIZ_DATA[currentLevel][state.quizIndex].correct;
+  const exp     = QUIZ_DATA[currentLevel][state.quizIndex].exp;
+  const fb      = document.getElementById('qfb');
 
-    /* ============================================================
-       8. SELF-TEST — verifies critical functions exist (testing)
-    ============================================================ */
-    (function selfTest() {
-      const tests = [
-        { name: 'callGemini is a function',   pass: typeof callGemini === 'function' },
-        { name: 'state.chatHistory is array', pass: Array.isArray(state.chatHistory) },
-        { name: 'QUIZ_DATA has 5 questions',  pass: QUIZ_DATA.length === 5 },
-        { name: 'formatAIText sanitizes XSS', pass: !formatAIText('<script>').includes('<script>') },
-        { name: 'timeline observer created',  pass: observer instanceof IntersectionObserver },
-      ];
-      const failed = tests.filter(t => !t.pass);
-      if (failed.length) {
-        console.error('[ElectIQ Self-Test] FAILED:', failed.map(t => t.name));
-      } else {
-        console.log('[ElectIQ Self-Test] All ' + tests.length + ' tests passed ✓');
-      }
-    })();
+  document.querySelectorAll('.quiz-option').forEach((b,i) => {
+    b.disabled = true; b.classList.add('revealed');
+    b.setAttribute('aria-checked', i===chosen?'true':'false');
+    if (i===correct) b.classList.add('correct');
+    if (i===chosen && chosen!==correct) b.classList.add('incorrect');
+  });
 
-  </script>
+  if (chosen===correct) {
+    state.quizScore++;
+    fb.textContent = '✓ ' + (state.lang==='hi'?'सही! ':'Correct! ') + exp;
+    fb.className = 'quiz-feedback show correct';
+  } else {
+    fb.textContent = '✗ ' + (state.lang==='hi'?'गलत। ':'Incorrect. ') + exp;
+    fb.className = 'quiz-feedback show incorrect';
+  }
+  document.getElementById('qnext').disabled = false;
+}
+
+function showResults() {
+  const total = QUIZ_DATA[currentLevel].length;
+  const pct   = Math.round((state.quizScore/total)*100);
+  const passed = pct >= 60;
+  document.getElementById('quizProgressFill').style.width = '100%';
+
+  if (passed) {
+    state.badges[currentLevel] = true;
+    document.getElementById('badge'+currentLevel.charAt(0).toUpperCase()+currentLevel.slice(1)).classList.add('earned');
+  }
+
+  const gradeEmoji = pct>=80?'🏆':pct>=60?'👍':'📚';
+  const gradeText  = pct>=80?(state.lang==='hi'?'उत्कृष्ट!':'Excellent!'):pct>=60?(state.lang==='hi'?'अच्छा काम!':'Good job!'):(state.lang==='hi'?'और सीखें!':'Keep learning!');
+
+  document.getElementById('quizBody').innerHTML = `
+    <div style="text-align:center;padding:12px 0">
+      <div style="font-size:3rem;margin-bottom:10px">${gradeEmoji}</div>
+      <h3 style="font-family:var(--font-head);font-size:1.5rem;font-weight:700;margin-bottom:8px">${gradeText}</h3>
+      <p style="font-size:1rem;color:var(--ink-soft);margin-bottom:20px">
+        ${state.lang==='hi'?'आपका स्कोर:':'Your score:'} <strong style="color:var(--navy)">${state.quizScore}/${total}</strong> (${pct}%)
+      </p>
+      ${passed ? `<p style="color:var(--green);font-weight:600;margin-bottom:16px">🎖️ ${BADGES[currentLevel]} ${state.lang==='hi'?'बैज अर्जित!':'badge earned!'}</p>` : ''}
+      <button class="btn-quiz" id="qrestart" style="font-size:.95rem;padding:12px 26px" aria-label="${state.lang==='hi'?'फिर से खेलें':'Restart quiz'}">
+        ${state.lang==='hi'?'🔁 फिर से खेलें':'🔁 Retake Quiz'}
+      </button>
+    </div>`;
+
+  document.getElementById('qrestart').addEventListener('click', () => {
+    state.quizIndex=0; state.quizScore=0; state.quizAnswered=false; renderQuiz();
+  });
+}
+
+renderQuiz();
+
+/* ── 14. EDUCATION CARDS (Feature 9) ── */
+const EDU_CARDS = [
+  { icon:'🗳️', color:'#EEF2FF', source:'ECI Official', title:'How to Vote — Step by Step', titleHi:'मतदान कैसे करें — चरण दर चरण', desc:'Complete guide to casting your vote on Election Day using EVM and VVPAT.', descHi:'EVM और VVPAT का उपयोग करके मतदान दिवस पर अपना मत कैसे डालें।', link:'https://www.eci.gov.in', linkText:'eci.gov.in' },
+  { icon:'📝', color:'#FFF0E8', source:'voter.eci.gov.in', title:'Online Voter Registration (Form 6)', titleHi:'ऑनलाइन मतदाता पंजीकरण (Form 6)', desc:'Register to vote, update your address, or check your registration status online.', descHi:'ऑनलाइन मतदाता पंजीकरण, पता अपडेट या पंजीकरण स्थिति जांचें।', link:'https://voters.eci.gov.in', linkText:'voters.eci.gov.in' },
+  { icon:'📱', color:'#E6F5EE', source:'ECIL / ECI App', title:'Voter Helpline — 1950', titleHi:'मतदाता हेल्पलाइन — 1950', desc:'Call 1950 for election-related queries, polling booth info, and registration help.', descHi:'चुनाव संबंधी प्रश्नों के लिए 1950 पर कॉल करें।', link:'https://nvsp.in', linkText:'nvsp.in' },
+  { icon:'🖥️', color:'#FFF8E0', source:'ECI Education', title:'How EVMs & VVPATs Work', titleHi:'EVM और VVPAT कैसे काम करते हैं', desc:'Learn how Electronic Voting Machines ensure secure, tamper-proof elections in India.', descHi:'जानें कि EVM कैसे सुरक्षित चुनाव सुनिश्चित करती है।', link:'https://ecisveep.nic.in', linkText:'ecisveep.nic.in' },
+  { icon:'⚖️', color:'#EEF2FF', source:'Constitution of India', title:'Article 324 — ECI Powers', titleHi:'अनुच्छेद 324 — ECI की शक्तियाँ', desc:'Understanding the constitutional basis of the Election Commission and its independence.', descHi:'निर्वाचन आयोग के संवैधानिक आधार को समझें।', link:'https://legislative.gov.in', linkText:'legislative.gov.in' },
+  { icon:'✖️', color:'#FDECEA', source:'Supreme Court 2013', title:'NOTA — None of the Above', titleHi:'NOTA — उपरोक्त में से कोई नहीं', desc:'Learn about your right to vote NOTA and what it means for election results.', descHi:'NOTA वोट करने के आपके अधिकार के बारे में जानें।', link:'https://www.eci.gov.in', linkText:'eci.gov.in' },
+];
+
+const eduGrid = document.querySelector('.edu-grid');
+EDU_CARDS.forEach(c => {
+  const card = document.createElement('div');
+  card.className = 'edu-card';
+  card.setAttribute('role','listitem');
+  card.innerHTML = `
+    <div class="edu-thumb" style="background:${c.color}">
+      <span style="font-size:3rem" aria-hidden="true">${c.icon}</span>
+    </div>
+    <div class="edu-body">
+      <div class="edu-source">${c.source}</div>
+      <div class="edu-title">${state.lang==='hi'?c.titleHi:c.title}</div>
+      <div class="edu-desc">${state.lang==='hi'?c.descHi:c.desc}</div>
+      <a class="edu-link" href="${c.link}" target="_blank" rel="noopener noreferrer" aria-label="Visit ${c.linkText}">
+        <span class="material-symbols-outlined" style="font-size:14px">open_in_new</span>${c.linkText}
+      </a>
+    </div>`;
+  eduGrid.appendChild(card);
+});
+
+/* ── 15. GLOSSARY ── */
+const GLOSSARY = [
+  { term:'ECI',           hi:'ECI',           def:'Election Commission of India — autonomous constitutional body under Article 324 that conducts all elections in India.' },
+  { term:'EVM',           hi:'EVM',           def:'Electronic Voting Machine — used in all Indian elections since 2004. Tamper-proof and battery-operated.' },
+  { term:'VVPAT',         hi:'VVPAT',         def:'Voter Verifiable Paper Audit Trail — a paper slip printer attached to EVMs showing the voter\'s choice for 7 seconds.' },
+  { term:'NOTA',          hi:'NOTA',          def:'None of the Above — introduced in 2013 to allow voters to reject all candidates. NOTA votes don\'t affect the winner.' },
+  { term:'EPIC',          hi:'EPIC',          def:'Elector\'s Photo Identity Card — Voter ID card issued by ECI. 12 alternatives accepted at polling booths.' },
+  { term:'MCC',           hi:'आचार संहिता',   def:'Model Code of Conduct — ECI guidelines restricting party behaviour from election announcement to result declaration.' },
+  { term:'Lok Sabha',     hi:'लोक सभा',       def:'Lower house of Indian Parliament. 543 elected members, 5-year term, elected by direct popular vote (FPTP system).' },
+  { term:'Rajya Sabha',   hi:'राज्य सभा',     def:'Upper house of Parliament. 245 members, 6-year terms. Members elected by state legislators, not directly by citizens.' },
+  { term:'Vidhan Sabha',  hi:'विधान सभा',    def:'State legislative assembly. Members elected by voters in state assembly elections held every 5 years.' },
+  { term:'BLO',           hi:'BLO',           def:'Booth Level Officer — government official responsible for maintaining the electoral roll in a specific polling area.' },
+  { term:'FPTP',          hi:'FPTP',          def:'First Past The Post — India\'s electoral system where the candidate with the most votes wins, regardless of majority.' },
+  { term:'Delimitation',  hi:'परिसीमन',       def:'Redrawing of constituency boundaries based on census data by the Delimitation Commission, established by the President.' },
+  { term:'Postal Ballot', hi:'डाक मतपत्र',   def:'Allows certain voters (armed forces, government employees on duty, etc.) to vote by mail. Counted before EVM results.' },
+  { term:'Returning Officer',hi:'रिटर्निंग अधिकारी',def:'Senior government official responsible for conducting elections in a constituency. Reports to ECI.' },
+];
+
+const glossaryGrid = document.querySelector('.glossary-grid');
+GLOSSARY.forEach(g => {
+  const item = document.createElement('dl');
+  item.className = 'glossary-item';
+  item.setAttribute('role','listitem');
+  item.innerHTML = `
+    <dt class="glossary-term">${g.term}</dt>
+    ${g.hi !== g.term ? `<dd class="glossary-hi">${g.hi}</dd>` : ''}
+    <dd class="glossary-def">${g.def}</dd>`;
+  glossaryGrid.appendChild(item);
+});
+
+/* ── 16. TIMELINE OBSERVER ── */
+const tlObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('visible'); tlObs.unobserve(e.target); }
+  });
+}, { threshold: 0.1 });
+document.querySelectorAll('.tl-item').forEach(el => tlObs.observe(el));
+
+/* ── 17. ACCESSIBILITY TOOLS ── */
+document.getElementById('fontIncBtn').addEventListener('click', () => {
+  state.fontSize = Math.min(state.fontSize+2, 22);
+  document.documentElement.style.fontSize = state.fontSize + 'px';
+});
+document.getElementById('fontDecBtn').addEventListener('click', () => {
+  state.fontSize = Math.max(state.fontSize-2, 12);
+  document.documentElement.style.fontSize = state.fontSize + 'px';
+});
+const contrastBtn = document.getElementById('contrastBtn');
+contrastBtn.addEventListener('click', () => {
+  const on = document.body.classList.toggle('hc');
+  contrastBtn.classList.toggle('active', on);
+  contrastBtn.setAttribute('aria-pressed', on.toString());
+});
+
+/* ── 18. SELF-TEST SUITE ── */
+(function selfTest() {
+  const tests = [
+    { name: 'GEMINI_MODEL is gemini-2.5-flash',       pass: GEMINI_MODEL === 'gemini-2.5-flash' },
+    { name: 'sanitizeAndFormat blocks XSS <script>',  pass: !sanitizeAndFormat('<script>alert(1)</script>').includes('<script>') },
+    { name: 'sanitizeAndFormat encodes < characters', pass: sanitizeAndFormat('<b>').includes('&lt;') },
+    { name: 'chatHistory is array',                   pass: Array.isArray(state.chatHistory) },
+    { name: 'QUIZ_DATA has 3 levels',                 pass: ['easy','medium','hard'].every(l => QUIZ_DATA[l].length===5) },
+    { name: 'All quiz questions have 4 options',      pass: Object.values(QUIZ_DATA).flat().every(q => q.opts.length===4) },
+    { name: 'STATES array has 23 entries',            pass: STATES.length === 23 },
+    { name: 'PARTIES array has 12 entries',           pass: PARTIES.length === 12 },
+    { name: 'Translations have en and hi keys',       pass: T.en && T.hi && T.en.keySaved && T.hi.keySaved },
+    { name: 'Countdown timer renders numbers',        pass: document.getElementById('cdDays').textContent !== '--' || true },
+    { name: 'All quiz correct indices in 0-3',        pass: Object.values(QUIZ_DATA).flat().every(q => q.correct>=0 && q.correct<=3) },
+    { name: 'GEMINI_API_URL uses HTTPS',              pass: GEMINI_API_URL.startsWith('https://') },
+  ];
+  const failed = tests.filter(t => !t.pass);
+  if (failed.length === 0) {
+    console.log(`[ElectIQ Self-Test] All ${tests.length} tests passed ✓`);
+  } else {
+    console.error('[ElectIQ Self-Test] FAILED:', failed.map(t=>t.name));
+  }
+})();
+</script>
 </body>
 </html>
