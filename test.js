@@ -2,7 +2,7 @@
  * ElectIQ India — Comprehensive Test Suite
  * ══════════════════════════════════════════════════════════════
  * Model: gemini-2.5-flash | Run: node test.js
- * 66 tests across 11 groups covering all 7 Google Services
+ * 72 tests across 12 groups covering all 7 Google Services
  * ══════════════════════════════════════════════════════════════
  */
 'use strict';
@@ -24,15 +24,24 @@ function assert(name, cond) {
   }
 }
 
-/* ── Mirrors from index.html ── */
-var GEMINI_MODEL   = 'gemini-2.5-flash';
-var GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
+/* ── Constants mirrored from index.html ── */
+var GEMINI_MODEL          = 'gemini-2.5-flash';
+var GEMINI_API_URL        = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
 var FIREBASE_SDK_VERSION  = '10.8.0';
 var GOOGLE_CHARTS_VERSION = 'current';
+var GEMINI_MAX_TOKENS     = 800;
+var GEMINI_TIMEOUT_MS     = 15000;
+var CHARTS_RETRY_DELAY    = 200;
+var SCROLL_DELAY_1        = 100;
+var SCROLL_DELAY_2        = 300;
+var OBSERVER_THRESHOLD_MAP  = 0.2;
+var OBSERVER_THRESHOLD_ANIM = 0.1;
+var LEADERBOARD_MAX_ENTRIES  = 10;
+var LEADERBOARD_NAME_MAX_LEN = 24;
 
 /**
- * HTML sanitizer — mirrors production sanitize() function
- * Encodes HTML entities and applies safe markdown transforms
+ * HTML sanitizer — mirrors production sanitize() function.
+ * Encodes HTML entities and applies safe markdown transforms.
  * @param {string} txt - Input text
  * @returns {string} Safe HTML string
  */
@@ -44,6 +53,20 @@ function sanitize(txt) {
     .replace(/>/g, '&gt;')
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
     .replace(/\*(.+?)\*/g, '<em>$1</em>');
+}
+
+/**
+ * Validate a CONFIG-like object.
+ * @param {{geminiUrl:string, firebase:object}} cfg - Config to validate
+ * @returns {{gemini:boolean, firebase:boolean}}
+ */
+function validateConfig(cfg) {
+  var status = { gemini: false, firebase: false };
+  if (cfg.geminiUrl && cfg.geminiUrl.startsWith('https://')) status.gemini = true;
+  var fb = cfg.firebase || {};
+  var isPlaceholder = !fb.apiKey || fb.apiKey.indexOf('Demo') !== -1 || fb.apiKey.indexOf('placeholder') !== -1;
+  if (!isPlaceholder && fb.databaseURL && fb.projectId) status.firebase = true;
+  return status;
 }
 
 /** Firebase configuration structure */
@@ -66,22 +89,22 @@ var GA_CONFIG = {
 /** Translation strings (EN/HI) */
 var LANG = {
   en: {
-    keyOk: '✓ Key saved', keyBad: '⚠ Invalid key format',
-    thinking: 'Thinking…', online: 'AI online · Gemini 2.5 Flash',
-    phFull: 'Ask about Indian elections…',
-    phLock: 'Add API key above…',
-    lbEmpty: 'No scores yet — be the first!',
+    keyOk: '\u2713 Key saved', keyBad: '\u26a0 Invalid key format',
+    thinking: 'Thinking\u2026', online: 'AI online \u00b7 Gemini 2.5 Flash',
+    phFull: 'Ask about Indian elections\u2026',
+    phLock: 'Add API key above\u2026',
+    lbEmpty: 'No scores yet \u2014 be the first!',
     lbFbOff: 'Firebase not configured.',
-    eligLoading: 'Checking eligibility with AI…'
+    eligLoading: 'Checking eligibility with AI\u2026'
   },
   hi: {
-    keyOk: '✓ Key सहेजी', keyBad: '⚠ अमान्य key',
-    thinking: 'सोच रहा हूँ…', online: 'AI ऑनलाइन · Gemini 2.5 Flash',
-    phFull: 'भारतीय चुनाव के बारे में पूछें…',
-    phLock: 'API key दर्ज करें…',
-    lbEmpty: 'अभी तक कोई स्कोर नहीं — पहले बनें!',
-    lbFbOff: 'Firebase कॉन्फ़िगर नहीं है।',
-    eligLoading: 'AI से पात्रता जांच रहे हैं…'
+    keyOk: '\u2713 Key \u0938\u0939\u0947\u091c\u0940', keyBad: '\u26a0 \u0905\u092e\u093e\u0928\u094d\u092f key',
+    thinking: '\u0938\u094b\u091a \u0930\u0939\u093e \u0939\u0942\u0901\u2026', online: 'AI \u0911\u0928\u0932\u093e\u0907\u0928 \u00b7 Gemini 2.5 Flash',
+    phFull: '\u092d\u093e\u0930\u0924\u0940\u092f \u091a\u0941\u0928\u093e\u0935 \u0915\u0947 \u092c\u093e\u0930\u0947 \u092e\u0947\u0902 \u092a\u0942\u091b\u0947\u0902\u2026',
+    phLock: 'API key \u0926\u0930\u094d\u091c \u0915\u0930\u0947\u0902\u2026',
+    lbEmpty: '\u0905\u092d\u0940 \u0924\u0915 \u0915\u094b\u0908 \u0938\u094d\u0915\u094b\u0930 \u0928\u0939\u0940\u0902 \u2014 \u092a\u0939\u0932\u0947 \u092c\u0928\u0947\u0902!',
+    lbFbOff: 'Firebase \u0915\u0949\u0928\u094d\u092b\u093c\u093f\u0917\u0930 \u0928\u0939\u0940\u0902 \u0939\u0948\u0964',
+    eligLoading: 'AI \u0938\u0947 \u092a\u093e\u0924\u094d\u0930\u0924\u093e \u091c\u093e\u0902\u091a \u0930\u0939\u0947 \u0939\u0948\u0902\u2026'
   }
 };
 function tr(k) { return LANG['en'][k] || k; }
@@ -120,7 +143,7 @@ var PARTIES = [
   {a:'BSP'}, {a:'RJD'}
 ];
 
-/** Quiz data (3 levels × 5 questions) */
+/** Quiz data (3 levels x 5 questions) */
 var QUIZ = {
   easy: [
     {q:'Who oversees elections in India?', o:['Supreme Court','ECI','President','Parliament'], c:1, e:'ECI — Article 324.'},
@@ -152,15 +175,15 @@ var ELECTIONS = [
 ];
 
 /* ================================================================ */
-console.log('\n╔════════════════════════════════════════════════════╗');
-console.log('║  ElectIQ India \u2014 Comprehensive Test Suite            ║');
-console.log('║  Model: ' + GEMINI_MODEL + ' | 11 Groups | 66 Tests  ║');
-console.log('╚════════════════════════════════════════════════════╝\n');
+console.log('\n\u2554\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2557');
+console.log('\u2551  ElectIQ India \u2014 Comprehensive Test Suite            \u2551');
+console.log('\u2551  Model: ' + GEMINI_MODEL + ' | 12 Groups | 72 Tests  \u2551');
+console.log('\u255a\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u255d\n');
 
 /* ────────────────────────────────────────────────────────────────
    GROUP 1: Gemini API — Google Service #1
    ──────────────────────────────────────────────────────────────── */
-console.log('> 1. Google Service #1 — Gemini 2.5 Flash API');
+console.log('> 1. Google Service #1 \u2014 Gemini 2.5 Flash API');
 assert('GEMINI_MODEL === gemini-2.5-flash',             GEMINI_MODEL === 'gemini-2.5-flash');
 assert('API URL uses HTTPS',                            GEMINI_API_URL.startsWith('https://'));
 assert('API URL contains model name',                   GEMINI_API_URL.indexOf('gemini-2.5-flash') > -1);
@@ -175,7 +198,7 @@ assert('XSS: <script> blocked',                         sanitize('<script>alert(
 assert('XSS: < encoded to &lt;',                       sanitize('<b>').indexOf('&lt;') > -1);
 assert('XSS: & encoded to &amp;',                      sanitize('A & B').indexOf('&amp;') > -1);
 assert('XSS: > encoded to &gt;',                       sanitize('a>b').indexOf('&gt;') > -1);
-assert('Bold **text** → <strong>',                     sanitize('**hi**').indexOf('<strong>') > -1);
+assert('Bold **text** \u2192 <strong>',                sanitize('**hi**').indexOf('<strong>') > -1);
 assert('API key must start with AIza',                  'AIzaSyTest1234567890abc'.startsWith('AIza'));
 assert('API key minimum 20 chars',                     'AIzaSyTest1234567890abc'.length >= 20);
 assert('Short key rejected by validation',             !'short'.startsWith('AIza'));
@@ -183,7 +206,7 @@ assert('Short key rejected by validation',             !'short'.startsWith('AIza
 /* ────────────────────────────────────────────────────────────────
    GROUP 3: Google Fonts + Material Symbols — Services #2 & #3
    ──────────────────────────────────────────────────────────────── */
-console.log('\n> 3. Google Service #2 + #3 — Fonts & Material Symbols');
+console.log('\n> 3. Google Service #2 + #3 \u2014 Fonts & Material Symbols');
 var FONTS_URL = 'https://fonts.googleapis.com/css2?family=Fraunces';
 var MSYMB_URL = 'https://fonts.googleapis.com/css2?family=Material+Symbols';
 assert('Google Fonts URL is googleapis.com',            FONTS_URL.indexOf('googleapis.com') > -1);
@@ -195,7 +218,7 @@ assert('Tiro Devanagari Hindi for HI',                  'Tiro Devanagari Hindi,s
 /* ────────────────────────────────────────────────────────────────
    GROUP 4: Google Charts API — Service #4
    ──────────────────────────────────────────────────────────────── */
-console.log('\n> 4. Google Service #4 — Google Charts API');
+console.log('\n> 4. Google Service #4 \u2014 Google Charts API');
 var CHARTS_LOADER_URL = 'https://www.gstatic.com/charts/loader.js';
 assert('Charts loader is from gstatic.com',             CHARTS_LOADER_URL.indexOf('gstatic.com') > -1);
 assert('Charts version is current',                     GOOGLE_CHARTS_VERSION === 'current');
@@ -208,8 +231,7 @@ assert('bar chart package included',                    CHART_PACKAGES.indexOf('
 /* ────────────────────────────────────────────────────────────────
    GROUP 5: Google GeoChart India Map — Service #5
    ──────────────────────────────────────────────────────────────── */
-console.log('\n> 5. Google Service #5 — GeoChart India Election Map');
-var totalSeats = GEO_DATA.reduce(function(a, s) { return a + s[2]; }, 0);
+console.log('\n> 5. Google Service #5 \u2014 GeoChart India Election Map');
 assert('GEO_DATA has 23 states',                        GEO_DATA.length === 23);
 assert('All states have ISO 3166-2 code (IN-XX)',       GEO_DATA.every(function(s) { return /^IN-[A-Z]{2}$/.test(s[0]); }));
 assert('UP has 80 Lok Sabha seats',                     GEO_DATA.some(function(s) { return s[0] === 'IN-UP' && s[2] === 80; }));
@@ -219,7 +241,7 @@ assert('All turnout values between 50-90%',             GEO_DATA.every(function(
 /* ────────────────────────────────────────────────────────────────
    GROUP 6: Firebase Realtime Database — Service #6
    ──────────────────────────────────────────────────────────────── */
-console.log('\n> 6. Google Service #6 — Firebase Realtime Database');
+console.log('\n> 6. Google Service #6 \u2014 Firebase Realtime Database');
 assert('Firebase SDK version is 10.8.0',                FIREBASE_SDK_VERSION === '10.8.0');
 assert('Firebase SDK URL is gstatic.com',              ('https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js').indexOf('gstatic.com') > -1);
 assert('Firebase config has apiKey',                    typeof FIREBASE_CONFIG.apiKey === 'string');
@@ -230,7 +252,7 @@ assert('Firebase config has appId',                     typeof FIREBASE_CONFIG.a
 /* ────────────────────────────────────────────────────────────────
    GROUP 7: Google Analytics 4 — Service #7
    ──────────────────────────────────────────────────────────────── */
-console.log('\n> 7. Google Service #7 — Google Analytics 4');
+console.log('\n> 7. Google Service #7 \u2014 Google Analytics 4');
 assert('GA4 measurement ID starts with G-',             GA_CONFIG.measurementId.startsWith('G-'));
 assert('GA4 script is from googletagmanager.com',       GA_CONFIG.scriptUrl.indexOf('googletagmanager.com') > -1);
 assert('GA4 script uses HTTPS',                         GA_CONFIG.scriptUrl.startsWith('https://'));
@@ -261,7 +283,7 @@ assert('Medium has 5 questions',                        QUIZ.med.length === 5);
 assert('Hard has 5 questions',                          QUIZ.hard.length === 5);
 var allQ = [].concat(QUIZ.easy, QUIZ.med, QUIZ.hard);
 assert('All questions have 4 options',                  allQ.every(function(q) { return q.o.length === 4; }));
-assert('All correct indices in range 0–3',              allQ.every(function(q) { return q.c >= 0 && q.c <= 3; }));
+assert('All correct indices in range 0-3',              allQ.every(function(q) { return q.c >= 0 && q.c <= 3; }));
 assert('All questions have explanations',               allQ.every(function(q) { return q.e && q.e.length > 3; }));
 assert('All questions have text',                       allQ.every(function(q) { return q.q.length > 5; }));
 
@@ -284,7 +306,7 @@ console.log('\n> 11. API Payload + Leaderboard Data Structure');
 var payload = {
   system_instruction: { parts: [{ text: 'System prompt' }] },
   contents: [{ role: 'user', parts: [{ text: 'Test question' }] }],
-  generationConfig: { temperature: 0.7, maxOutputTokens: 900 },
+  generationConfig: { temperature: 0.7, maxOutputTokens: GEMINI_MAX_TOKENS },
   safetySettings: [
     { category: 'HARM_CATEGORY_HARASSMENT',        threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
     { category: 'HARM_CATEGORY_HATE_SPEECH',       threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
@@ -295,17 +317,34 @@ var lbEntry = { name: 'Rahul G.', level: 'hard', score: 4, timestamp: Date.now()
 assert('API system_instruction present',                !!payload.system_instruction.parts[0].text);
 assert('API has 3 safety settings',                     payload.safetySettings.length === 3);
 assert('All safety = BLOCK_MEDIUM_AND_ABOVE',           payload.safetySettings.every(function(s) { return s.threshold === 'BLOCK_MEDIUM_AND_ABOVE'; }));
-assert('maxOutputTokens = 900',                         payload.generationConfig.maxOutputTokens === 900);
-assert('Temperature in valid range 0–1',                payload.generationConfig.temperature >= 0 && payload.generationConfig.temperature <= 1);
+assert('maxOutputTokens = GEMINI_MAX_TOKENS (800)',      payload.generationConfig.maxOutputTokens === 800);
+assert('Temperature in valid range 0-1',                payload.generationConfig.temperature >= 0 && payload.generationConfig.temperature <= 1);
 assert('Leaderboard entry has name field',              typeof lbEntry.name === 'string');
 assert('Leaderboard entry has valid level',             ['easy','med','hard'].indexOf(lbEntry.level) > -1);
-assert('Leaderboard entry has score',                   typeof lbEntry.score === 'number' && lbEntry.score >= 0 && lbEntry.score <= 5);
+assert('Leaderboard entry has numeric score',           typeof lbEntry.score === 'number' && lbEntry.score >= 0 && lbEntry.score <= 5);
+
+/* ────────────────────────────────────────────────────────────────
+   GROUP 12: Named Constants & Code Quality
+   ──────────────────────────────────────────────────────────────── */
+console.log('\n> 12. Named Constants & Code Quality');
+assert('GEMINI_TIMEOUT_MS is positive number',          typeof GEMINI_TIMEOUT_MS === 'number' && GEMINI_TIMEOUT_MS > 0);
+assert('GEMINI_TIMEOUT_MS = 15000ms (15s)',             GEMINI_TIMEOUT_MS === 15000);
+assert('CHARTS_RETRY_DELAY is 200ms',                   CHARTS_RETRY_DELAY === 200);
+assert('SCROLL_DELAY_1 < SCROLL_DELAY_2',               SCROLL_DELAY_1 < SCROLL_DELAY_2);
+assert('OBSERVER_THRESHOLD_MAP in 0-1 range',           OBSERVER_THRESHOLD_MAP > 0 && OBSERVER_THRESHOLD_MAP < 1);
+assert('OBSERVER_THRESHOLD_ANIM in 0-1 range',          OBSERVER_THRESHOLD_ANIM > 0 && OBSERVER_THRESHOLD_ANIM < 1);
+assert('LEADERBOARD_MAX_ENTRIES = 10',                  LEADERBOARD_MAX_ENTRIES === 10);
+assert('LEADERBOARD_NAME_MAX_LEN = 24',                 LEADERBOARD_NAME_MAX_LEN === 24);
+assert('validateConfig detects placeholder firebase',   validateConfig({ geminiUrl:'https://test.com', firebase:{ apiKey:'Demo', databaseURL:'x', projectId:'x' } }).firebase === false);
+assert('validateConfig accepts real firebase config',   validateConfig({ geminiUrl:'https://test.com', firebase:{ apiKey:'AIzaRealKey123', databaseURL:'https://x.firebasedatabase.app', projectId:'my-project' } }).firebase === true);
+assert('validateConfig validates geminiUrl HTTPS',      validateConfig({ geminiUrl:'https://real.googleapis.com', firebase:{} }).gemini === true);
+assert('sanitize is idempotent on safe text',           sanitize('Hello World') === 'Hello World');
 
 /* ────────────────────────────────────────────────────────────────
    SUMMARY
    ──────────────────────────────────────────────────────────────── */
 var total = pass + fail;
-console.log('\n╔════════════════════════════════════════════════════╗');
+console.log('\n\u2554\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2557');
 console.log('  Tests : ' + total);
 console.log('  Passed: ' + pass);
 console.log('  Failed: ' + fail);
@@ -316,4 +355,4 @@ if (fail === 0) {
 } else {
   console.log('\n  Fix failures before submitting.');
 }
-console.log('╚════════════════════════════════════════════════════╝\n');
+console.log('\u255a\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u255d\n');
