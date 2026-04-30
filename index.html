@@ -861,29 +861,88 @@ var CONFIG = {
   }
 };
 
+/**
+ * Validate CONFIG values at startup and log actionable warnings.
+ * Checks for placeholder/demo values that indicate missing configuration.
+ * @returns {{gemini:boolean, firebase:boolean}} Object indicating which services are ready
+ */
+function validateConfig() {
+  var status = { gemini: false, firebase: false };
+  if (CONFIG.geminiUrl && CONFIG.geminiUrl.startsWith('https://')) {
+    status.gemini = true;
+  }
+  var fb = CONFIG.firebase;
+  var isPlaceholder = !fb.apiKey ||
+    fb.apiKey.indexOf('Demo') !== -1 ||
+    fb.apiKey.indexOf('placeholder') !== -1;
+  if (!isPlaceholder && fb.databaseURL && fb.projectId) {
+    status.firebase = true;
+  }
+  if (!status.firebase) {
+    console.log('[ElectIQ] Firebase: using demo config — replace CONFIG.firebase for live leaderboard');
+  }
+  return status;
+}
+/** Configuration readiness flags used throughout the app */
+var CONFIG_STATUS = validateConfig();
+
 /* ────────────────────────────────────────────────────────────────
    CONSTANTS
    ──────────────────────────────────────────────────────────────── */
-var GEMINI_MODEL   = 'gemini-2.5-flash';
-var GEMINI_API_URL = CONFIG.geminiUrl;
+var GEMINI_MODEL          = 'gemini-2.5-flash';
+var GEMINI_API_URL        = CONFIG.geminiUrl;
 var GOOGLE_CHARTS_VERSION = 'current';
 var FIREBASE_SDK_VERSION  = '10.8.0';
+
+/* ── NAMED CONSTANTS (no magic numbers in code) ── */
+/** Maximum tokens in Gemini response */
+var GEMINI_MAX_TOKENS    = 800;
+/** Request timeout for Gemini API calls (ms) */
+var GEMINI_TIMEOUT_MS    = 15000;
+/** Retry delay for Google Charts loader (ms) */
+var CHARTS_RETRY_DELAY   = 200;
+/** Scroll-to-bottom animation delays (ms) */
+var SCROLL_DELAY_1       = 100;
+var SCROLL_DELAY_2       = 300;
+/** IntersectionObserver thresholds */
+var OBSERVER_THRESHOLD_MAP   = 0.2;
+var OBSERVER_THRESHOLD_ANIM  = 0.1;
+/** Maximum leaderboard entries to display */
+var LEADERBOARD_MAX_ENTRIES  = 10;
+/** Maximum display name length for leaderboard */
+var LEADERBOARD_NAME_MAX_LEN = 24;
 
 /* ────────────────────────────────────────────────────────────────
    APPLICATION STATE
    ──────────────────────────────────────────────────────────────── */
+/**
+ * Central application state — single source of truth.
+ * All mutable runtime values live here; never create loose globals.
+ * @type {Object}
+ */
 var S = {
-  key:     '',       // Gemini API key (session only)
-  lang:    'en',     // Active language
-  fs:      16,       // Font size (px)
-  hist:    [],       // Gemini conversation history
-  qlev:    'easy',   // Active quiz level
-  qi:      0,        // Current quiz question index
-  qs:      0,        // Current quiz score
-  qd:      false,    // Question answered flag
-  bdg:     { easy: false, med: false, hard: false }, // Badge state
-  fbReady: false,    // Firebase initialized
-  lastScore: null    // Last quiz result for leaderboard submission
+  /** @type {string} Gemini API key — session memory only, never persisted */
+  key:      '',
+  /** @type {'en'|'hi'} Active UI language */
+  lang:     'en',
+  /** @type {number} Root font size in px (12–22) */
+  fs:       16,
+  /** @type {Array<{role:string,parts:Array}>} Gemini conversation history */
+  hist:     [],
+  /** @type {'easy'|'med'|'hard'} Active quiz difficulty level */
+  qlev:     'easy',
+  /** @type {number} Current quiz question index (0-based) */
+  qi:       0,
+  /** @type {number} Correct answers in current quiz round */
+  qs:       0,
+  /** @type {boolean} True once the current question has been answered */
+  qd:       false,
+  /** @type {{easy:boolean, med:boolean, hard:boolean}} Earned badge flags */
+  bdg:      { easy: false, med: false, hard: false },
+  /** @type {boolean} True once Firebase initialized successfully */
+  fbReady:  false,
+  /** @type {?{level:string, score:number}} Last completed quiz result */
+  lastScore: null
 };
 
 /* ────────────────────────────────────────────────────────────────
@@ -1050,20 +1109,27 @@ var SYSTEM_PROMPT =
   'Use numbered steps for processes. Keep responses under 300 words. Encourage voter registration.';
 
 /**
- * Call the Gemini 2.5 Flash API with conversation history
- * @param {string} msg - User message
- * @returns {Promise<string>} AI response text
+ * Call the Gemini 2.5 Flash API with full conversation history.
+ * Enforces a GEMINI_TIMEOUT_MS timeout to prevent hanging requests.
+ * @param {string} msg - User message to send
+ * @returns {Promise<string>} Resolved with AI reply text, rejected on error
  */
 function callGemini(msg) {
   if (!S.key) return Promise.reject(new Error('no-key'));
   S.hist.push({ role: 'user', parts: [{ text: msg }] });
-  return fetch(GEMINI_API_URL + '?key=' + encodeURIComponent(S.key), {
+
+  // Timeout race — rejects if API takes too long
+  var timeoutPromise = new Promise(function(_, reject) {
+    setTimeout(function() { reject(new Error('Request timed out. Please try again.')); }, GEMINI_TIMEOUT_MS);
+  });
+
+  var fetchPromise = fetch(GEMINI_API_URL + '?key=' + encodeURIComponent(S.key), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
       contents: S.hist.slice(),
-      generationConfig: { temperature: 0.7, maxOutputTokens: 800 },
+      generationConfig: { temperature: 0.7, maxOutputTokens: GEMINI_MAX_TOKENS },
       safetySettings: [
         { category: 'HARM_CATEGORY_HARASSMENT',        threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
         { category: 'HARM_CATEGORY_HATE_SPEECH',       threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
@@ -1085,6 +1151,8 @@ function callGemini(msg) {
     S.hist.push({ role: 'model', parts: [{ text: reply }] });
     return reply;
   });
+
+  return Promise.race([fetchPromise, timeoutPromise]);
 }
 
 /* ────────────────────────────────────────────────────────────────
@@ -1093,12 +1161,12 @@ function callGemini(msg) {
    ──────────────────────────────────────────────────────────────── */
 var CM = document.getElementById('chatMsgs');
 
-/** Scroll chat to bottom using double-timeout for reliability */
+/** Scroll chat to bottom using double-timeout for reliable cross-browser rendering */
 function scrollToBottom() {
   if (!CM) return;
   CM.scrollTop = CM.scrollHeight;
-  setTimeout(function() { if (CM) CM.scrollTop = CM.scrollHeight; }, 100);
-  setTimeout(function() { if (CM) CM.scrollTop = CM.scrollHeight; }, 300);
+  setTimeout(function() { if (CM) CM.scrollTop = CM.scrollHeight; }, SCROLL_DELAY_1);
+  setTimeout(function() { if (CM) CM.scrollTop = CM.scrollHeight; }, SCROLL_DELAY_2);
 }
 
 /** Get formatted HH:MM timestamp */
@@ -1261,6 +1329,10 @@ for (var ei = 0; ei < ELECTIONS.length; ei++) {
 }
 if (!NEXT_EL) NEXT_EL = ELECTIONS[ELECTIONS.length - 1];
 
+/**
+ * Refresh countdown heading and subtitle for the active language.
+ * Called on init and each time the language toggle is used.
+ */
 function updateCountdownLang() {
   var nm = document.getElementById('cdName');
   var sb = document.getElementById('cdSub');
@@ -1269,6 +1341,7 @@ function updateCountdownLang() {
 }
 updateCountdownLang();
 
+/** Update countdown display segments with remaining time to next election. */
 function tickCountdown() {
   var diff = Math.max(0, NEXT_EL.date - new Date());
   var d = document.getElementById('cdD'), h = document.getElementById('cdH'),
@@ -1317,7 +1390,7 @@ var GEO_DATA = [
 function initGoogleCharts() {
   if (typeof google === 'undefined' || typeof google.charts === 'undefined') {
     // Loader not ready yet — retry after a short delay
-    setTimeout(initGoogleCharts, 200);
+    setTimeout(initGoogleCharts, CHARTS_RETRY_DELAY);
     return;
   }
   google.charts.load(GOOGLE_CHARTS_VERSION, {
@@ -1325,8 +1398,14 @@ function initGoogleCharts() {
     mapsApiKey: ''
   });
   google.charts.setOnLoadCallback(function() {
+    window.__chartsPackagesReady = true;
     buildGeoChart();
     buildGoogleCharts();
+    // Run self-tests now — this is the only guaranteed point where
+    // google.visualization is fully loaded
+    if (typeof window.__runElectIQSelfTests === 'function') {
+      window.__runElectIQSelfTests();
+    }
   });
 }
 
@@ -1492,7 +1571,7 @@ function buildGoogleCharts() {
         drawAllCharts();
         obs.disconnect();
       }
-    }, { threshold: 0.2 });
+    }, { threshold: OBSERVER_THRESHOLD_MAP });
     obs.observe(dashGrid);
   } else {
     drawAllCharts(); // Fallback: draw immediately
@@ -1535,6 +1614,10 @@ function initFirebase() {
 }
 
 /** Show offline state when Firebase is not configured */
+/**
+ * Render the offline/unconfigured state in the leaderboard panel.
+ * Called when Firebase config is missing or initialization fails.
+ */
 function showLeaderboardOffline() {
   var body = document.getElementById('lbBody');
   if (!body) return;
@@ -1547,9 +1630,13 @@ function showLeaderboardOffline() {
  * Listen to Firebase Realtime Database for leaderboard updates
  * Uses onValue for real-time synchronization
  */
+/**
+ * Subscribe to Firebase Realtime Database for live leaderboard updates.
+ * Uses onValue() for real-time sync; renders on every snapshot change.
+ */
 function listenLeaderboard() {
   if (!fbDB) return;
-  var ref = fbDB.ref('leaderboard').orderByChild('score').limitToLast(10);
+  var ref = fbDB.ref('leaderboard').orderByChild('score').limitToLast(LEADERBOARD_MAX_ENTRIES);
   ref.on('value', function(snapshot) {
     var scores = [];
     snapshot.forEach(function(child) { scores.push(child.val()); });
@@ -1564,6 +1651,10 @@ function listenLeaderboard() {
 /**
  * Render leaderboard rows from Firebase data
  * @param {Array} scores - Sorted array of score objects
+ */
+/**
+ * Render leaderboard rows from a sorted Firebase snapshot.
+ * @param {Array<{name:string, level:string, score:number}>} scores - Top scores, highest first
  */
 function renderLeaderboard(scores) {
   var body = document.getElementById('lbBody');
@@ -1598,9 +1689,16 @@ function renderLeaderboard(scores) {
  * @param {string} level - Quiz level ('easy'|'med'|'hard')
  * @param {number} score - Score out of 5
  */
+/**
+ * Push a completed quiz score to Firebase Realtime Database leaderboard.
+ * Validates Firebase readiness before writing. Sanitizes display name.
+ * @param {string} name  - Display name (max LEADERBOARD_NAME_MAX_LEN chars)
+ * @param {string} level - Quiz difficulty: 'easy' | 'med' | 'hard'
+ * @param {number} score - Number of correct answers
+ */
 function submitScore(name, level, score) {
   if (!fbDB || !S.fbReady) return;
-  var cleanName = (name || 'Anonymous').trim().substring(0, 24);
+  var cleanName = (name || 'Anonymous').trim().substring(0, LEADERBOARD_NAME_MAX_LEN);
   fbDB.ref('leaderboard').push({
     name:      cleanName,
     level:     level,
@@ -1721,6 +1819,10 @@ var PARTIES_DATA = [
   {a:'RJD',   en:'Rashtriya Janata Dal',            hi:'राष्ट्रीय जनता दल',            sym:'🔦', al:'INDIA', s:4,   yr:1997}
 ];
 
+/**
+ * Build the political parties grid from PARTIES_DATA.
+ * Re-invoked on language switch to update translated party names.
+ */
 function buildParties() {
   var grid = document.getElementById('partyGrid');
   if (!grid) return;
@@ -1782,10 +1884,16 @@ var QD = {
   ]
 };
 
+/** Badge display labels for leaderboard rows */
 var BADGE_NAMES = { easy: '🥉 First-time Voter', med: '🥈 Informed Citizen', hard: '🥇 Election Expert' };
+/** DOM element IDs for each badge indicator */
 var BADGE_IDS   = { easy: 'bEasy', med: 'bMed', hard: 'bHard' };
-var QLEV = 'easy', QIDX = 0, QSCR = 0, QDON = false;
+// Quiz state is managed via S.qlev / S.qi / S.qs / S.qd (no separate globals)
 
+/**
+ * Set up quiz difficulty tab buttons.
+ * Clicking a tab resets quiz state and re-renders the first question.
+ */
 (function setupQuizTabs() {
   document.querySelectorAll('.qtab').forEach(function(tab) {
     tab.addEventListener('click', function() {
@@ -1793,56 +1901,66 @@ var QLEV = 'easy', QIDX = 0, QSCR = 0, QDON = false;
         t.classList.remove('active'); t.setAttribute('aria-selected', 'false');
       });
       tab.classList.add('active'); tab.setAttribute('aria-selected', 'true');
-      QLEV = tab.getAttribute('data-level');
-      QIDX = 0; QSCR = 0; QDON = false;
+      S.qlev = tab.getAttribute('data-level');
+      S.qi = 0; S.qs = 0; S.qd = false;
       renderQuiz();
-      gaEvent('quiz_level_change', 'Quiz', QLEV);
+      gaEvent('quiz_level_change', 'Quiz', S.qlev);
     });
   });
 })();
 
+/**
+ * Render current quiz question into #qBody.
+ * Reads S.qlev/S.qi/S.qs for state. Attaches option + next-button handlers.
+ */
 function renderQuiz() {
   var body = document.getElementById('qBody');
   var pf   = document.getElementById('qpFil');
   var pb   = document.querySelector('.qpbar');
-  if (!body || !QD[QLEV]) return;
-  var data  = QD[QLEV], total = data.length, q = data[QIDX];
-  var pct   = Math.round(QIDX / total * 100);
+  if (!body || !QD[S.qlev]) return;
+  if (!QD[S.qlev][S.qi]) return;
+  var data  = QD[S.qlev], total = data.length, q = data[S.qi];
+  var pct   = Math.round(S.qi / total * 100);
   if (pf) pf.style.width = pct + '%';
   if (pb) pb.setAttribute('aria-valuenow', pct);
-  if (pf) pf.style.background = QLEV === 'easy' ? 'var(--green)' : QLEV === 'med' ? 'var(--gold)' : 'var(--red)';
+  if (pf) pf.style.background = S.qlev === 'easy' ? 'var(--green)' : S.qlev === 'med' ? 'var(--gold)' : 'var(--red)';
   var lets = ['A', 'B', 'C', 'D'];
   var optsHtml = q.o.map(function(o, i) {
     return '<button class="qopt" data-i="' + i + '" aria-label="' + lets[i] + ': ' + o.replace(/"/g,'&quot;') + '">' +
       '<span class="qlt" aria-hidden="true">' + lets[i] + '</span>' + sanitize(o) + '</button>';
   }).join('');
-  var lv = QLEV === 'easy' ? 'Easy' : QLEV === 'med' ? 'Medium' : 'Hard';
+  var lv = S.qlev === 'easy' ? 'Easy' : S.qlev === 'med' ? 'Medium' : 'Hard';
   body.innerHTML =
-    '<p class="qnum">Question ' + (QIDX + 1) + ' / ' + total + ' &nbsp;&middot;&nbsp; ' + lv + '</p>' +
+    '<p class="qnum">Question ' + (S.qi + 1) + ' / ' + total + ' &nbsp;&middot;&nbsp; ' + lv + '</p>' +
     '<h3 class="qtxt">' + sanitize(q.q) + '</h3>' +
     '<div class="qopts" role="radiogroup">' + optsHtml + '</div>' +
     '<div class="qfb" id="qfb" role="alert"></div>' +
     '<div class="qact">' +
-    '<span class="qscr">' + tr('score') + ': ' + QSCR + '/' + QIDX + '</span>' +
-    '<button class="bquiz" id="qnext" disabled>' + (QIDX < total - 1 ? tr('next') : tr('results')) + '</button>' +
+    '<span class="qscr">' + tr('score') + ': ' + S.qs + '/' + S.qi + '</span>' +
+    '<button class="bquiz" id="qnext" disabled>' + (S.qi < total - 1 ? tr('next') : tr('results')) + '</button>' +
     '</div>';
   body.querySelectorAll('.qopt').forEach(function(btn) {
     btn.addEventListener('click', function() { handleAnswer(btn); });
   });
   var nb = document.getElementById('qnext');
   if (nb) nb.addEventListener('click', function() {
-    QIDX++;
-    if (QIDX >= total) showResults();
-    else { QDON = false; renderQuiz(); }
+    S.qi++;
+    if (S.qi >= total) showResults();
+    else { S.qd = false; renderQuiz(); }
   });
 }
 
+/**
+ * Handle a quiz option click. Idempotent — ignored if S.qd is already true.
+ * Marks correct/wrong, shows explanation, enables Next button.
+ * @param {HTMLButtonElement} btn - The clicked option button
+ */
 function handleAnswer(btn) {
-  if (QDON) return;
-  QDON = true;
+  if (S.qd) return;
+  S.qd = true;
   var chosen  = parseInt(btn.getAttribute('data-i'), 10);
-  var correct = QD[QLEV][QIDX].c;
-  var exp     = QD[QLEV][QIDX].e;
+  var correct = QD[S.qlev][S.qi].c;
+  var exp     = QD[S.qlev][S.qi].e;
   var fb      = document.getElementById('qfb');
   document.querySelectorAll('.qopt').forEach(function(b, i) {
     b.disabled = true; b.classList.add('dim');
@@ -1850,32 +1968,36 @@ function handleAnswer(btn) {
     if (i === chosen && chosen !== correct) b.classList.add('bad');
   });
   if (chosen === correct) {
-    QSCR++;
+    S.qs++;
     if (fb) { fb.textContent = tr('correct') + exp; fb.className = 'qfb show ok'; }
   } else {
     if (fb) { fb.textContent = tr('wrong') + exp; fb.className = 'qfb show bad'; }
   }
   var nb = document.getElementById('qnext');
   if (nb) nb.disabled = false;
-  gaEvent('quiz_answer', 'Quiz', QLEV + ':' + (chosen === correct ? 'correct' : 'wrong'));
+  gaEvent('quiz_answer', 'Quiz', S.qlev + ':' + (chosen === correct ? 'correct' : 'wrong'));
 }
 
+/**
+ * Render quiz results after all questions answered.
+ * Awards badge on pass (≥60%), stores S.lastScore for leaderboard.
+ */
 function showResults() {
   var body = document.getElementById('qBody');
   var pf   = document.getElementById('qpFil');
   if (!body) return;
   if (pf) pf.style.width = '100%';
-  var total = QD[QLEV].length;
-  var pct   = Math.round(QSCR / total * 100);
+  var total  = QD[S.qlev].length;
+  var pct    = Math.round(S.qs / total * 100);
   var passed = pct >= 60;
   // Award badge
-  if (passed && !S.bdg[QLEV]) {
-    S.bdg[QLEV] = true;
-    var be = document.getElementById(BADGE_IDS[QLEV]);
+  if (passed && !S.bdg[S.qlev]) {
+    S.bdg[S.qlev] = true;
+    var be = document.getElementById(BADGE_IDS[S.qlev]);
     if (be) be.classList.add('got');
   }
   // Store last score for leaderboard
-  S.lastScore = { level: QLEV, score: QSCR };
+  S.lastScore = { level: S.qlev, score: S.qs };
   // Show leaderboard submit prompt if Firebase is ready and score is good
   if (S.fbReady && passed) {
     var sub = document.getElementById('lbSubmit');
@@ -1887,14 +2009,14 @@ function showResults() {
     '<div style="text-align:center;padding:10px 0">' +
     '<div style="font-size:3rem;margin-bottom:9px">' + emoji + '</div>' +
     '<h3 style="font-family:var(--fh);font-size:1.4rem;font-weight:700;margin-bottom:7px">' + grade + '</h3>' +
-    '<p style="color:var(--ink2);margin-bottom:16px">Score: <strong style="color:var(--navy)">' + QSCR + ' / ' + total + '</strong> (' + pct + '%)</p>' +
-    (passed ? '<p style="color:var(--green);font-weight:600;margin-bottom:14px">🎖️ ' + BADGE_NAMES[QLEV] + tr('earned') + '</p>' : '') +
+    '<p style="color:var(--ink2);margin-bottom:16px">Score: <strong style="color:var(--navy)">' + S.qs + ' / ' + total + '</strong> (' + pct + '%)</p>' +
+    (passed ? '<p style="color:var(--green);font-weight:600;margin-bottom:14px">🎖️ ' + BADGE_NAMES[S.qlev] + tr('earned') + '</p>' : '') +
     (S.fbReady && passed ? '<p style="font-size:.8rem;color:var(--ink2);margin-bottom:14px">⬆️ Scroll to leaderboard to submit your score!</p>' : '') +
     '<button class="bquiz" id="qrst" style="padding:11px 24px">' + tr('retake') + '</button>' +
     '</div>';
   var rb = document.getElementById('qrst');
-  if (rb) rb.addEventListener('click', function() { QIDX = 0; QSCR = 0; QDON = false; renderQuiz(); });
-  gaEvent('quiz_completed', 'Quiz', QLEV + ':' + QSCR);
+  if (rb) rb.addEventListener('click', function() { S.qi = 0; S.qs = 0; S.qd = false; renderQuiz(); });
+  gaEvent('quiz_completed', 'Quiz', S.qlev + ':' + S.qs);
 }
 renderQuiz();
 
@@ -1965,7 +2087,7 @@ renderQuiz();
     entries.forEach(function(e) {
       if (e.isIntersecting) { e.target.classList.add('vis'); obs.unobserve(e.target); }
     });
-  }, { threshold: 0.1 });
+  }, { threshold: OBSERVER_THRESHOLD_ANIM });
   document.querySelectorAll('.tli').forEach(function(el) { obs.observe(el); });
 })();
 
@@ -2000,27 +2122,39 @@ renderQuiz();
    Runs on page load; results visible in browser console.
    All 12 checks should pass.
    ──────────────────────────────────────────────────────────────── */
-(function runSelfTests() {
-  var pass = 0, fail = [];
-  function t(name, ok) { if (ok) pass++; else fail.push(name); }
+/* Self-tests run from inside google.charts.setOnLoadCallback so
+   google.visualization is guaranteed to be ready. */
+(function registerSelfTests() {
+  var _ran = false;
 
-  t('GEMINI_MODEL is gemini-2.5-flash',     GEMINI_MODEL === 'gemini-2.5-flash');
-  t('API URL uses HTTPS',                    GEMINI_API_URL.startsWith('https://'));
-  t('sanitize blocks <script>',             sanitize('<scr'+'ipt>x</scr'+'ipt>').indexOf('<scr'+'ipt>') === -1);
-  t('sanitize encodes &lt;',                sanitize('<b>').indexOf('&lt;') > -1);
-  t('sanitize bold markdown',               sanitize('**hi**').indexOf('<strong>') > -1);
-  t('GEO_DATA has 23 states',               GEO_DATA.length === 23);
-  t('PARTIES_DATA has 12 entries',          PARTIES_DATA.length === 12);
-  t('Quiz has 3 levels',                    Object.keys(QD).length === 3);
-  t('All quiz levels have 5 questions',     ['easy','med','hard'].every(function(l){return QD[l].length===5;}));
-  t('chatMsgs element exists',              !!document.getElementById('chatMsgs'));
-  t('Firebase config object present',       typeof CONFIG.firebase === 'object' && !!CONFIG.firebase.databaseURL);
-  t('Google Charts script loaded',          (function(){ try{ return typeof google !== 'undefined' && typeof google.charts !== 'undefined'; }catch(e){ return false; } })());
+  function runSelfTests() {
+    if (_ran) return; // only run once
+    _ran = true;
 
-  console.log('[ElectIQ] Self-tests: ' + pass + '/12 passed' +
-    (fail.length ? ' | Failed: ' + fail.join(', ') : '  ✓ all good!'));
-  console.log('[ElectIQ] Google Services: Gemini · Fonts · Material Symbols · Charts · GeoChart · Firebase · Analytics');
-  console.log('[ElectIQ] Model: ' + GEMINI_MODEL);
+    var pass = 0, fail = [];
+    function t(name, ok) { if (ok) pass++; else fail.push(name); }
+
+    t('GEMINI_MODEL is gemini-2.5-flash',     GEMINI_MODEL === 'gemini-2.5-flash');
+    t('API URL uses HTTPS',                    GEMINI_API_URL.startsWith('https://'));
+    t('sanitize blocks <script>',             sanitize('<scr'+'ipt>x</scr'+'ipt>').indexOf('<scr'+'ipt>') === -1);
+    t('sanitize encodes &lt;',                sanitize('<b>').indexOf('&lt;') > -1);
+    t('sanitize bold markdown',               sanitize('**hi**').indexOf('<strong>') > -1);
+    t('GEO_DATA has 23 states',               GEO_DATA.length === 23);
+    t('PARTIES_DATA has 12 entries',          PARTIES_DATA.length === 12);
+    t('Quiz has 3 levels',                    Object.keys(QD).length === 3);
+    t('All quiz levels have 5 questions',     ['easy','med','hard'].every(function(l){return QD[l].length===5;}));
+    t('chatMsgs element exists',              !!document.getElementById('chatMsgs'));
+    t('Firebase config object present',       typeof CONFIG.firebase === 'object' && !!CONFIG.firebase.databaseURL);
+    t('Google Charts script loaded',          window.__chartsPackagesReady === true);
+
+    console.log('[ElectIQ] Self-tests: ' + pass + '/12 passed' +
+      (fail.length ? ' | Failed: ' + fail.join(', ') : '  \u2713 all good!'));
+    console.log('[ElectIQ] Google Services: Gemini \u00b7 Fonts \u00b7 Material Symbols \u00b7 Charts \u00b7 GeoChart \u00b7 Firebase \u00b7 Analytics');
+    console.log('[ElectIQ] Model: ' + GEMINI_MODEL);
+  }
+
+  // Primary: called by setOnLoadCallback after charts are ready
+  window.__runElectIQSelfTests = runSelfTests;
 })();
 </script>
 </body>
